@@ -1,10 +1,10 @@
-#ifndef MULTI_MAP_HPP_
-#define MULTI_MAP_HPP_
-
 /**
  * Multimap is a map with multiple keys that map to a single value. Pretty useful if a group of
  * objects has multiple type-identical properties.
  */
+
+#ifndef MULTI_MAP_HPP_
+#define MULTI_MAP_HPP_
 
 #include <type_traits>
 #include <unordered_map>
