@@ -30,7 +30,7 @@ class MultiMap {
         using type = typename std::unordered_map<K, typename MultiMapImple<Kn...>::type>;
     };
 
-    typename MultiMapImple<Args...>::type map;
+    typename MultiMapImple<Args...>::type map_;  // This map is where the magic happens.
 
    public:
     // Uses fold expression (, ...) to unpack Args then decltype inspects value category
@@ -42,16 +42,45 @@ class MultiMap {
     //     std::unordered_map<last_key, value>::iterator current;
     // };
 
-    MultiMap() {}
+    MultiMap() = default;
 
-    template <typename T>
-    auto operator[](T const& index) -> decltype(map[index])& {
-        return map[index];
+    MultiMap(MultiMap const& other) : map_(other.map_) {}
+
+    MultiMap(MultiMap&& other) noexcept {
+        std::swap(map_, other.map_);
+    }
+
+    auto operator=(MultiMap const& other) noexcept -> MultiMap& {
+        return MultiMap(other).swap(*this);
+    }
+
+    auto operator=(MultiMap&& other) noexcept -> MultiMap& {
+        std::swap(map_, other.map_);
+        return *this;
+    }
+
+    auto clear() noexcept -> void {
+        map_.clear();
     }
 
     template <typename T>
-    auto operator[](T const& index) const -> decltype(map[index])& {
-        return map[index];
+    auto operator[](T const& index) -> decltype(map_[index])& {
+        return map_[index];
+    }
+
+    template <typename T>
+    auto operator[](T const& index) const -> decltype(map_[index])& {
+        return map_[index];
+    }
+
+    template <typename T>
+    auto operator[](T const& index) -> decltype(map_[index])& {
+        return map_[index];
+    }
+
+    template <typename T>
+    auto operator[](T const& index) const -> decltype(map_[index])& {
+        return map_[index];
     }
 };
 
