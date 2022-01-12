@@ -1,0 +1,7 @@
+before_script:
+    - apt-get update && apt-get -y install cmake
+
+multi_map_build:
+   stage: build
+   script:
+      - cmake CMakeLists.txt --config Debug --target MultiMapTest -- -j 6
