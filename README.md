@@ -4,7 +4,7 @@ A map with multiple keys that map to a single value.
 
 ## Dependencies
 
-- GoogleTest
+- [GoogleTest](https://github.com/google/googletest)
 
 ## VSCode Extensions
 
