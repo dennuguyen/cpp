@@ -48,6 +48,7 @@ class multikey_map {
 
     multikey_map(multikey_map&& other) noexcept {
         std::swap(map_, other.map_);
+        other.clear();
     }
 
     auto operator=(multikey_map const& other) noexcept -> multikey_map& {
@@ -56,6 +57,7 @@ class multikey_map {
 
     auto operator=(multikey_map&& other) noexcept -> multikey_map& {
         std::swap(map_, other.map_);
+        other.clear();
         return *this;
     }
 
@@ -69,18 +71,24 @@ class multikey_map {
     }
 
     template <typename T>
-    auto operator[](T const& index) const -> decltype(map_[index])& {
+    auto operator[](T const& index) const -> decltype(map_[index]) {
         return map_[index];
     }
 
     template <typename T>
-    auto operator[](T const& index) -> decltype(map_[index])& {
+    auto at(T const& index) -> decltype(map_[index])& {
         return map_[index];
     }
 
     template <typename T>
-    auto operator[](T const& index) const -> decltype(map_[index])& {
+    auto at(T const& index) const -> decltype(map_[index]) {
         return map_[index];
+    }
+
+   private:
+    auto swap(multikey_map& other) noexcept -> multikey_map& {
+        map_.swap(other.map_);
+        return *this;
     }
 };
 
