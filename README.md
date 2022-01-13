@@ -37,6 +37,8 @@ my_map[E][C][F] = "last value";
 
 It is important to note that the selective search can only select all keys or one key for an index. It is not possible to multiselect a number of keys inbetween for an index.
 
+Selective search is a feature of multikey map because it is useful to only consider some a subset of key indices instead of all of them.
+
 ### Selective Search
 
 Multikey map's selective search allows neglecting a set of keys to expand the search for a set of values. For example (using the above example), if the search key sequence was:
