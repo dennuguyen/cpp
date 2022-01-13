@@ -1,9 +1,9 @@
 # Multikey Map
 
 A map with multiple keys that map to a single value. For example, given a multikey map with:
-- 1st set of keys: $ \{A, E\} $.
-- 2nd set of keys: $ \{B, C\} $.
-- 3rd set of keys: $ \{D, F\} $.
+- 1st set of keys: $`\{A, E\}`$.
+- 2nd set of keys: $`\{B, C\}`$.
+- 3rd set of keys: $`\{D, F\}`$.
 
 With the following mapping between sets of keys:
 
@@ -25,7 +25,7 @@ flowchart LR
     A --> C
     E --> C --> F
 ```
-Then $ \{A, B, D \}, \{A, C, F \}, \{E, C, F \} $ are valid key sequences which map to a value i.e. each unique path maps to a value.
+Then $`\{A, B, D \}, \{A, C, F \}, \{E, C, F \}`$ are valid key sequences which map to a value i.e. each unique path maps to a value.
 
 This is also equivalent to the following C++ code:
 ```cpp
@@ -40,10 +40,10 @@ my_map[E][C][F] = "last value";
 
 Multikey map's selective search allows neglecting a set of keys to expand the search for a set of values. For example (using the above example), if the search key sequence was:
 - 1st key: any key.
-- 2nd key: $C$.
-- 3rd key: $F$.
+- 2nd key: $`C`$.
+- 3rd key: $`F`$.
 
-The $B$ and $D$ keys are not considered in the search so the graph is simplified as:
+The $`B`$ and $`D`$ keys are not considered in the search so the graph is simplified as:
 ```mermaid
 flowchart LR
     subgraph 1st Set
