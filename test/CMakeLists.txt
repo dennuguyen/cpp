@@ -3,10 +3,10 @@ include(GoogleTest)
 
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_executable(MultiMapTest MultiMapTest.cpp)
-target_link_libraries(MultiMapTest pthread gtest gtest_main)
+add_executable(multikey_map_test test_constructor.cpp)
+target_link_libraries(multikey_map_test pthread gtest gtest_main)
 
 add_test(
-    NAME MultiMapTest
-    COMMAND MultiMapTest
+    NAME multikey_map_test
+    COMMAND multikey_map_test
 )

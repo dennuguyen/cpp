@@ -1,5 +1,5 @@
 /**
- * Multimap is a map with multiple keys that map to a single value. Pretty useful if a group of
+ * multikey_map is a map with multiple keys that map to a single value. Pretty useful if a group of
  * objects has multiple type-identical properties.
  */
 
@@ -10,27 +10,27 @@
 #include <unordered_map>
 
 template <typename... Args>
-class MultiMap {
+class multikey_map {
    private:
     // Forward declaration for multiple arguments regardless of key and value.
-    // This is useful in the variadic templated definition of MultiMapImple for recursion.
+    // This is useful in the variadic templated definition of multikey_map_imple for recursion.
     template <typename... Kn>
-    struct MultiMapImple;
+    struct multikey_map_imple;
 
-    // Partial specialisation terminates MultiMapImple recursion.
+    // Partial specialisation terminates multikey_map_imple recursion.
     template <typename K, typename V>
-    struct MultiMapImple<K, V> {
+    struct multikey_map_imple<K, V> {
         using type = typename std::unordered_map<K, V>;
     };
 
     template <typename K, typename... Kn>
-    struct MultiMapImple<K, Kn...> {
-        // Inner MultiMapImple needs to have keywords typename and ::type to get base case's type or
-        // type is overriden as just MultiMapImple<2nd last arg, last arg>.
-        using type = typename std::unordered_map<K, typename MultiMapImple<Kn...>::type>;
+    struct multikey_map_imple<K, Kn...> {
+        // Inner multikey_map_imple needs to have keywords typename and ::type to get base case's type or
+        // type is overriden as just multikey_map_imple<2nd last arg, last arg>.
+        using type = typename std::unordered_map<K, typename multikey_map_imple<Kn...>::type>;
     };
 
-    typename MultiMapImple<Args...>::type map_;  // This map is where the magic happens.
+    typename multikey_map_imple<Args...>::type map_;  // This map is where the magic happens.
 
    public:
     // Uses fold expression (, ...) to unpack Args then decltype inspects value category
@@ -42,19 +42,19 @@ class MultiMap {
     //     std::unordered_map<last_key, value>::iterator current;
     // };
 
-    MultiMap() = default;
+    multikey_map() = default;
 
-    MultiMap(MultiMap const& other) : map_(other.map_) {}
+    multikey_map(multikey_map const& other) : map_(other.map_) {}
 
-    MultiMap(MultiMap&& other) noexcept {
+    multikey_map(multikey_map&& other) noexcept {
         std::swap(map_, other.map_);
     }
 
-    auto operator=(MultiMap const& other) noexcept -> MultiMap& {
-        return MultiMap(other).swap(*this);
+    auto operator=(multikey_map const& other) noexcept -> multikey_map& {
+        return multikey_map(other).swap(*this);
     }
 
-    auto operator=(MultiMap&& other) noexcept -> MultiMap& {
+    auto operator=(multikey_map&& other) noexcept -> multikey_map& {
         std::swap(map_, other.map_);
         return *this;
     }
