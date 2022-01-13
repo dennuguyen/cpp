@@ -9,6 +9,14 @@
 #include <type_traits>
 #include <unordered_map>
 
+// Because no compiler supports std::type_identity yet...
+namespace std {
+template <typename T>
+struct type_identity {
+    using type = T;
+};
+}  // namespace std
+
 template <typename... Args>
 class multikey_map {
    private:
