@@ -22,35 +22,44 @@ class multikey_map {
    private:
     // Forward declaration for multiple arguments regardless of key and value.
     // This is useful in the variadic templated definition of multikey_map_imple for recursion.
-    template <typename... Kn>
+    template <typename... Tn>
     struct multikey_map_imple;
 
     // Partial specialisation terminates multikey_map_imple recursion.
-    template <typename K, typename V>
-    struct multikey_map_imple<K, V> {
-        using type = typename std::unordered_map<K, V>;
+    template <typename Key, typename T>
+    struct multikey_map_imple<Key, Value> {
+        using type = typename std::unordered_map<Key, T>;
     };
 
-    template <typename K, typename... Kn>
-    struct multikey_map_imple<K, Kn...> {
+    template <typename Key, typename... Tn>
+    struct multikey_map_imple<Key, Tn...> {
         // Inner multikey_map_imple needs to have keywords typename and ::type to get base case's type or
         // type is overriden as just multikey_map_imple<2nd last arg, last arg>.
-        using type = typename std::unordered_map<K, typename multikey_map_imple<Kn...>::type>;
+        using type = typename std::unordered_map<Key, typename multikey_map_imple<Tn...>::type>;
     };
 
     typename multikey_map_imple<Args...>::type map_;  // This map is where the magic happens.
 
    public:
+    using key_type = std::tuple<const Args...>;
+    using value_type = std::tuple<const Args...>;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+
     // Uses fold expression (, ...) to unpack Args then decltype inspects value category
-    // of the unpacked "comma expression" which is basically the last arg. Good to note that value
+    // of the unpacked "comma expression" which is basically the last arg. Good to note that mapped_type
     // is a prvalue so no temp object is created - O(1).
-    using value = typename decltype((std::type_identity<Args>{}, ...))::type;
+    using mapped_type = typename decltype((std::type_identity<Args>{}, ...))::type;
+    using null = struct null;
 
     // class iterator {
-    //     std::unordered_map<last_key, value>::iterator current;
+    //     std::unordered_map<last_key, mapped_type>::iterator current;
     // };
 
     multikey_map() = default;
+
+    template <typename T>
+    multikey_map(std::initializer_list<T> il) : map_(il) {}
 
     multikey_map(multikey_map const& other) : map_(other.map_) {}
 
@@ -73,6 +82,14 @@ class multikey_map {
         map_.clear();
     }
 
+    [[nodiscard]] auto empty() const noexcept -> bool {
+        return map_.empty();
+    }
+
+    [[nodiscard]] auto size() const noexcept -> std::size_t {
+        return map_.size();
+    }
+
     template <typename T>
     auto operator[](T const& index) -> decltype(map_[index])& {
         return map_[index];
@@ -83,15 +100,16 @@ class multikey_map {
         return map_[index];
     }
 
-    template <typename T>
-    auto at(T const& index) -> decltype(map_[index])& {
-        return map_[index];
-    }
+    // As close as we can get to MATLAB's : operator.
+    // Null type means we don't care about this index i.e. search all values from
+    // Lets us branch in our search
+    // auto operator[](null const& n) -> decltype(map_)& {
+    //     return map_.va;
+    // }
 
-    template <typename T>
-    auto at(T const& index) const -> decltype(map_[index]) {
-        return map_[index];
-    }
+    // auto operator[](null const& n) const -> decltype(map_) {
+    //     return map_[index];
+    // }
 
    private:
     auto swap(multikey_map& other) noexcept -> multikey_map& {
