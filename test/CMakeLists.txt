@@ -3,10 +3,16 @@ include(GoogleTest)
 
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_executable(contains_test test_contains.cpp)
-target_link_libraries(contains_test pthread gtest gtest_main)
-
-add_test(
-    NAME contains_test
-    COMMAND contains_test
+set(TESTS
+    test_contains
+    test_transform_if
 )
+
+foreach(TEST ${TESTS}) [
+    target_link_libraries(TEST pthread gtest gtest_main)
+    add_executable(TEST TEST.cpp)
+    add_test(
+        NAME TEST
+        COMMAND TEST
+    )
+]
