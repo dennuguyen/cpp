@@ -37,6 +37,12 @@ TEST(noncontiguous_subset, false) {
     EXPECT_FALSE(contains(alpha, test));
 }
 
+TEST(consecutive_but_not_contiguous, false) {
+    std::vector<int> alpha = {0, 3, 2, 6};
+    std::vector<int> test = {2, 3, 0};
+    EXPECT_FALSE(contains(alpha, test));
+}
+
 TEST(single_char_alphabet, false) {
     std::string alpha = "a";
     std::string word = "aaaaaaa";
