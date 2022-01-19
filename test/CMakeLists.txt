@@ -8,11 +8,11 @@ set(TESTS
     test_transform_if
 )
 
-foreach(TEST ${TESTS}) [
-    target_link_libraries(TEST pthread gtest gtest_main)
-    add_executable(TEST TEST.cpp)
+foreach(TEST ${TESTS})
+    add_executable(${TEST} ${TEST}.cpp)
+    target_link_libraries(${TEST} pthread gtest gtest_main)
     add_test(
-        NAME TEST
-        COMMAND TEST
+        NAME ${TEST}
+        COMMAND ${TEST}
     )
-]
+endforeach()
