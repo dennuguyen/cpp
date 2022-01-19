@@ -6,6 +6,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 set(TESTS
     test_contains
     test_transform_if
+    test_multikey_map
 )
 
 foreach(TEST ${TESTS})
