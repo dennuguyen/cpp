@@ -7,8 +7,10 @@ template <typename InputIt, typename OutputIt, typename UnaryPredicate, typename
 auto transform_if(InputIt first1, InputIt last1, OutputIt d_first, UnaryPredicate unary_pred, UnaryOperation unary_op) {
     while (first1 != last1) {
         if (unary_pred(*first1)) {
-            *d_first++ = unary_op(*first1++);
+            *d_first = unary_op(*first1);
         }
+        *d_first++;
+        *first1++;
     }
     return d_first;
 }
