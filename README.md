@@ -101,3 +101,8 @@ Outputs:
 another value
 last value
 ```
+
+## reverse_container
+
+`reverse_container` fully reverses a container and returns the copy of the reversed container, leaving the original unmodified.
+

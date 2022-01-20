@@ -7,6 +7,7 @@ set(TESTS
     test_contains
     test_transform_if
     test_multikey_map
+    test_reverse_container
 )
 
 foreach(TEST ${TESTS})
