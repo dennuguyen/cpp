@@ -8,8 +8,6 @@
 #include <type_traits>
 #include <unordered_map>
 
-namespace xtl {
-
 // Because no compiler supports std::type_identity yet...
 namespace std {
 template <typename T>
@@ -17,6 +15,8 @@ struct type_identity {
     using type = T;
 };
 }  // namespace std
+
+namespace xtl {
 
 template <typename... Args>
 class multikey_map {
@@ -59,11 +59,11 @@ class multikey_map {
 
     multikey_map() = default;
 
-    multikey_map(std::initializer_list<value_type> ilist) : map_(ilist) {}
+    // multikey_map(std::initializer_list<value_type> ilist) : map_(ilist) {}
 
-    auto operator=(std::initilizer_list<value_type> ilist) {
-        map_ = ilist;
-    }
+    // auto operator=(std::initilizer_list<value_type> ilist) {
+    //     map_ = ilist;
+    // }
 
     multikey_map(multikey_map const& other) : map_(other.map_) {}
 
