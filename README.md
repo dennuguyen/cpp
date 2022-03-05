@@ -106,3 +106,8 @@ last value
 
 `reverse_container` fully reverses a container and returns the copy of the reversed container, leaving the original unmodified.
 
+## sliding_window
+
+A generic sliding window algorithm which uses the fast/slow implementation i.e. window slides to right by 1 and the window length increases when the window restarts at the beginning index.
+
+The algorithm accepts a `BinaryPredicate` and `BinaryOperation` where the arguments are `start` and `end` iterators.
