@@ -43,7 +43,7 @@ TEST(empty_string, sliding_window) {
     EXPECT_EQ(expected, actual);
 }
 
-TEST(nested_palindromes, sliding_window) {
+TEST(nested_palindromes_0, sliding_window) {
     auto to_string = [](std::string::iterator const& begin, std::string::iterator const& end) -> std::string {
         return std::string(begin, end);
     };
@@ -59,5 +59,24 @@ TEST(nested_palindromes, sliding_window) {
     std::vector<std::string> expected = {"aba", "opo"};
     std::vector<std::string> actual;
     xtl::sliding_window(str.begin(), str.end(), std::back_inserter(actual), 3, is_palindrome, to_string);
+    EXPECT_EQ(expected, actual);
+}
+
+TEST(nested_palindromes_1, sliding_window) {
+    auto to_string = [](std::string::iterator const& begin, std::string::iterator const& end) -> std::string {
+        return std::string(begin, end);
+    };
+
+    auto is_palindrome = [](std::string::iterator const& begin, std::string::iterator const& end) -> bool {
+        auto s = std::string(begin, end);
+        auto rs = s;
+        std::reverse(rs.begin(), rs.end());
+        return s == rs;
+    };
+
+    std::string str = "ababa";
+    std::vector<std::string> expected = {"aba", "bab", "aba", "ababa"};
+    std::vector<std::string> actual;
+    xtl::sliding_window(str.begin(), str.end(), std::back_inserter(actual), 2, is_palindrome, to_string);
     EXPECT_EQ(expected, actual);
 }
