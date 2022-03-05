@@ -11,6 +11,8 @@
 - [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools) by Microsoft
 - [C++ TestMate](https://marketplace.visualstudio.com/items?itemName=matepek.vscode-catch2-test-adapter) by Mate 
 
+# Algorithms
+
 ## contains
 
 `contains` is a convenience template function which uses `std::search` as its underlying behaviour and returns true if a sequence of elements [s_first, s_last) is contiguously in the range [first, last).
@@ -18,6 +20,18 @@
 ## transform_if
 
 `transform_if` conditionally applies the given function to a range and stores the result in another range, keeping the original elements order and beginning at `d_first`.
+
+## reverse_container
+
+`reverse_container` fully reverses a container and returns the copy of the reversed container, leaving the original unmodified.
+
+## sliding_window
+
+A generic sliding window algorithm which uses the fast/slow implementation i.e. window slides to right by 1 and the window length increases when the window restarts at the beginning index.
+
+The algorithm accepts a `BinaryPredicate` and `BinaryOperation` where the arguments are `start` and `end` iterators.
+
+# Data Structures
 
 ## multikey_map
 
@@ -101,13 +115,3 @@ Outputs:
 another value
 last value
 ```
-
-## reverse_container
-
-`reverse_container` fully reverses a container and returns the copy of the reversed container, leaving the original unmodified.
-
-## sliding_window
-
-A generic sliding window algorithm which uses the fast/slow implementation i.e. window slides to right by 1 and the window length increases when the window restarts at the beginning index.
-
-The algorithm accepts a `BinaryPredicate` and `BinaryOperation` where the arguments are `start` and `end` iterators.
