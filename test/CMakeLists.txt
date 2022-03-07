@@ -9,6 +9,7 @@ set(TESTS
     test_multikey_map
     test_reverse_container
     test_sliding_window
+    test_nested_initializer_list
 )
 
 foreach(TEST ${TESTS})
