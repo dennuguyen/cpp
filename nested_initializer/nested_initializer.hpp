@@ -1,6 +1,6 @@
 #pragma once
 
-namespace xtl {
+namespace xtd {
 
 template <typename... T>
 class nested_initializer_list {
@@ -26,4 +26,4 @@ class nested_initializer_list {
     using const_reference = const value_type&;
 };
 
-}  // namespace xtl
+}  // namespace xtd

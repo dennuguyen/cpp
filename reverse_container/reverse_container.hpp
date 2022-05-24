@@ -1,6 +1,6 @@
 #pragma once
 
-namespace xtl {
+namespace xtd {
 
 template <class BidirectionalIterator>
 auto reverse_container(BidirectionalIterator first, BidirectionalIterator last, std::bidirectional_iterator_tag) -> void {
@@ -26,4 +26,4 @@ auto reverse_container(Cont cont) -> Cont {
     return cont;
 }
 
-}  // namespace xtl
+}  // namespace xtd

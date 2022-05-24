@@ -16,7 +16,7 @@ struct type_identity {
 };
 }  // namespace std
 
-namespace xtl {
+namespace xtd {
 
 template <typename... Args>
 class multikey_map {
@@ -122,4 +122,4 @@ class multikey_map {
     }
 };
 
-}  // namespace xtl
+}  // namespace xtd

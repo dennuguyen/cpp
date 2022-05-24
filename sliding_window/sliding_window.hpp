@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <utility>
 
-namespace xtl {
+namespace xtd {
 
 /**
  * Fast/slow sliding window algorithm implementation.
@@ -37,4 +37,4 @@ auto sliding_window(InputIt first, InputIt last, OutputIt d_first, int min_windo
     return d_first;
 }
 
-}  // namespace xtl
+}  // namespace xtd

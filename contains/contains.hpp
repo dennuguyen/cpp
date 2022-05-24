@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace xtl {
+namespace xtd {
 
 // Returns true if the container 1 contains container 2.
 template <class Container1, class Container2>
@@ -16,4 +16,4 @@ bool contains(Container1 cont1, Container2 cont2, BinaryPredicate binary_pred) {
     return std::search(cont1.begin(), cont1.end(), cont2.begin(), cont2.end(), binary_pred) != cont1.end();
 }
 
-} // namespace xtl
+} // namespace xtd
