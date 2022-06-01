@@ -1,0 +1,1 @@
+build_test_suite(test_adjacent_all_of)
