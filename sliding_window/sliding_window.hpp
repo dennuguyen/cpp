@@ -15,6 +15,8 @@ namespace xtd {
  * Window length starts at min_window_length and grows.
  *
  * Window slides to right by 1.
+ * 
+ * binary_pred and binary_op requires iterators as sliding window problems typically require manipulating ranges.
  */
 template <typename InputIt, typename OutputIt, typename BinaryPredicate, typename BinaryOperation>
 auto sliding_window(InputIt first, InputIt last, OutputIt d_first, int min_window_length, BinaryPredicate binary_pred, BinaryOperation binary_op) -> OutputIt {
