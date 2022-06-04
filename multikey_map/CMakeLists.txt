@@ -1,1 +1,1 @@
-build_test_suite(test_multikey_map)
+build_gtest_suite(test_multikey_map)

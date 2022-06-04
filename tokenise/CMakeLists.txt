@@ -1,1 +1,1 @@
-build_test_suite(test_tokenise)
+build_gtest_suite(test_tokenise)

@@ -1,1 +1,1 @@
-build_test_suite(test_sliding_window)
+build_gtest_suite(test_sliding_window)

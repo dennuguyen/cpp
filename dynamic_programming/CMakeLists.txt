@@ -1,1 +1,1 @@
-build_test_suite(test_dynamic_programming)
+build_gtest_suite(test_dynamic_programming)

@@ -1,1 +1,1 @@
-build_test_suite(test_reverse_container)
+build_gtest_suite(test_reverse_container)

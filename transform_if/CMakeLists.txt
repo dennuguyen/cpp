@@ -1,1 +1,1 @@
-build_test_suite(test_transform_if)
+build_gtest_suite(test_transform_if)

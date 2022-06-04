@@ -1,0 +1,1 @@
+build_gtest_suite(test_binary_search_index)

@@ -1,1 +1,0 @@
-build_test_suite(test_binary_search_index)

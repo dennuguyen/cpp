@@ -1,1 +1,1 @@
-build_test_suite(test_maximum_disjoint_set)
+build_gtest_suite(test_maximum_disjoint_set)
