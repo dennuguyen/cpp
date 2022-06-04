@@ -1,5 +1,5 @@
-#include "contains.hpp"
 #include "gtest/gtest.h"
+#include "contains.hpp"
 
 TEST(begins_with_contiguous_subset, contains) {
     std::vector<int> alpha = {0, 3, 2, 6};
