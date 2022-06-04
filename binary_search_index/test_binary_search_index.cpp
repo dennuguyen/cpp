@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "maximum_disjoint_set.hpp"
+#include "binary_search_index.hpp"
 
 TEST(test, test) {
 }

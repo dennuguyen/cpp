@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "maximum_disjoint_set.hpp"
+#include "dynamic_programming.hpp"
 
 TEST(test, test) {
 }
