@@ -214,5 +214,9 @@ TEST(move_assign_graph_with_nodes_and_edges, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_connected(3, 6));
 }
 
-TEST(begin_with_empty_graph, directed_weighted_graph) {
+TEST(clear_graph, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2", "3"});
+    ASSERT_FALSE(g.empty());
+    g.clear();
+    EXPECT_TRUE(g.empty());
 }
