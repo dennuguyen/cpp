@@ -27,6 +27,7 @@ auto maximum_disjoint_set(std::vector<std::pair<It, It>> sets) -> std::vector<st
     auto disjoint_sets = std::vector<std::pair<It, It>>();
     auto prev_start = sets[0].first;
     auto prev_end = sets[0].second;
+    disjoint_sets.insert(disjoint_sets.end(), {prev_start, prev_end});
 
     // Find maximal disjoint intervals.
     for (int i = 1; i < sets.size(); i++) {
@@ -34,9 +35,6 @@ auto maximum_disjoint_set(std::vector<std::pair<It, It>> sets) -> std::vector<st
         auto next_end = sets[i].second;
 
         if (prev_end <= next_start) {
-            if (i == 1) {
-                disjoint_sets.insert(disjoint_sets.end(), {prev_start, prev_end});
-            }
             disjoint_sets.insert(disjoint_sets.end(), {next_start, next_end});
             prev_start = next_start;
             prev_end = next_end;
