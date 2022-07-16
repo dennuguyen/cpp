@@ -18,3 +18,12 @@ TEST(new_line_delimtier, tokenise) {
     EXPECT_EQ("b", vec[1]);
     EXPECT_EQ("c", vec[2]);
 }
+
+TEST(string_delimtier, tokenise) {
+    auto str = "abccabacbccba";
+    auto vec = xtd::tokenise(str, "cc");
+    EXPECT_EQ(3, vec.size());
+    EXPECT_EQ("ab", vec[0]);
+    EXPECT_EQ("abacb", vec[1]);
+    EXPECT_EQ("ba", vec[2]);
+}
