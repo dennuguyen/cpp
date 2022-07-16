@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <iterator>
 #include <utility>
 
@@ -12,9 +13,8 @@ namespace xtd {
 /**
  * Maximum disjoint set is solved using the greedy method.
  */
-template <template <typename> typename Cont, typename It>
-auto maximum_disjoint_set(Cont<std::pair<It, It>> sets) -> Cont<std::pair<It, It>> {
-
+template <typename It>
+auto maximum_disjoint_set(std::vector<std::pair<It, It>> sets) -> std::vector<std::pair<It, It>> {
     // Handle trivial cases.
     if (sets.size() == 0 || sets.size() == 1) {
         return sets;
@@ -24,7 +24,7 @@ auto maximum_disjoint_set(Cont<std::pair<It, It>> sets) -> Cont<std::pair<It, It
     std::sort(sets.begin(), sets.end(), [](auto l, auto r) { return l.second < r.second; });
 
     // Define variables.
-    auto disjoint_sets = Cont<std::pair<It, It>>();
+    auto disjoint_sets = std::vector<std::pair<It, It>>();
     auto prev_start = sets[0].first;
     auto prev_end = sets[0].second;
 
@@ -34,6 +34,9 @@ auto maximum_disjoint_set(Cont<std::pair<It, It>> sets) -> Cont<std::pair<It, It
         auto next_end = sets[i].second;
 
         if (prev_end <= next_start) {
+            if (i == 1) {
+                disjoint_sets.insert(disjoint_sets.end(), {prev_start, prev_end});
+            }
             disjoint_sets.insert(disjoint_sets.end(), {next_start, next_end});
             prev_start = next_start;
             prev_end = next_end;
