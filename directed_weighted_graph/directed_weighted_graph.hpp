@@ -7,19 +7,24 @@
 #include <memory>
 #include <set>
 #include <utility>
+#include <vector>
 
 #include "transform_if.hpp"
 
 namespace xtd {
 
-template<typename N, typename E>
+template <typename N, typename E>
 class directed_weighted_graph {
-public:
+   public:
     struct node_comparator;
     struct node_edge_comparator;
-    using pair_t = std::pair<std::weak_ptr<N>, std::shared_ptr<E>>;
-    using set_t = std::set<pair_t, node_edge_comparator>;
-    using map_t = std::map<std::shared_ptr<N>, set_t, node_comparator>;
+    using node_type = std::shared_ptr<N>;
+    using neighbour_type = std::weak_ptr<N>;
+    using edge_type = std::shared_ptr<E>;
+    using pair_type = std::pair<neighbour_type, edge_type>;
+    using set_type = std::set<pair_type, node_edge_comparator>;
+    using map_type = std::map<node_type, set_type, node_comparator>;
+    using size_type = typename map_type::size_type;
 
     struct value_type {
         N from;
@@ -27,18 +32,18 @@ public:
         E weight;
     };
 
-    // Custom comparator for map_t.
+    // Custom comparator for map_type.
     struct node_comparator {
         using is_transparent = void;
-        constexpr auto operator()(std::shared_ptr<N> const& lhs, std::shared_ptr<N> const& rhs) const noexcept -> bool {
+        constexpr auto operator()(node_type const& lhs, node_type const& rhs) const noexcept -> bool {
             return *lhs < *rhs;
         }
     };
 
-    // Custom comparator for set_t.
+    // Custom comparator for set_type.
     struct node_edge_comparator {
         using is_transparent = void;
-        constexpr auto operator()(pair_t const& lhs, pair_t const& rhs) const noexcept -> bool {
+        constexpr auto operator()(pair_type const& lhs, pair_type const& rhs) const noexcept -> bool {
             // Compares nodes then compares edges if nodes are the same.
             return *lhs.first.lock() != *rhs.first.lock() ? *lhs.first.lock() < *rhs.first.lock() : *lhs.second < *rhs.second;
         }
@@ -51,15 +56,15 @@ public:
     //
     // Note: xtd::directed_weighted_graph<N, E>::iterator models std::bidirectional_iterator.
     class iterator {
-    public:
+       public:
         friend class directed_weighted_graph;
         using value_type = directed_weighted_graph<N, E>::value_type;
         using reference = value_type;
         using pointer = void;
         using difference_type = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
-        using outer_t = typename map_t::const_iterator;
-        using inner_t = typename set_t::const_iterator;
+        using outer_iterator_type = typename map_type::const_iterator;
+        using inner_iterator_type = typename set_type::const_iterator;
 
         // Pursuant to the requirements of std::forward_iterator, two value-initialised iterators shall compare equal.
         iterator() = default;
@@ -108,38 +113,33 @@ public:
             return temp;
         }
 
-        // [xtd.iterator.comparison]
         // Returns true if *this and other are pointing to elements in the same iterable list, and
         // false otherwise.
         auto operator==(iterator const& other) const noexcept -> bool {
             return outer_ == other.outer_ && (outer_ == last_ || inner_ == other.inner_);
         }
 
-    private:
-        // [xtd.iterator.ctor]
+       private:
         // Constructs an iterator to a specific element in the directed_weighted_graph using the first and last outer
         // iterators of the directed_weighted_graph internal data structure.
-        iterator(outer_t first, outer_t last) noexcept
-        : iterator(last, first, outer_->second.begin()) {}
+        iterator(outer_iterator_type first, outer_iterator_type last) noexcept
+            : iterator(last, first, outer_->second.begin()) {}
 
-        // [xtd.iterator.ctor]
         // Constructs an iterator to a specific element in the directed_weighted_graph using the outer and inner
         // iterators of the directed_weighted_graph internal data structure.
-        iterator(outer_t last, outer_t outer, inner_t inner) noexcept
-        : last_(last)
-        , outer_(outer)
-        , inner_(outer_ == last_ ? inner_t{} : inner) {}
+        iterator(outer_iterator_type last, outer_iterator_type outer, inner_iterator_type inner) noexcept
+            : last_(last), outer_(outer), inner_(outer_ == last_ ? inner_iterator_type{} : inner) {}
 
-        outer_t last_;
-        outer_t outer_;
-        inner_t inner_;
+        outer_iterator_type last_;
+        outer_iterator_type outer_;
+        inner_iterator_type inner_;
     };
 
     directed_weighted_graph() = default;
 
     directed_weighted_graph(std::initializer_list<N> il) noexcept : directed_weighted_graph(il.begin(), il.end()) {}
 
-    template<typename InputIt>
+    template <typename InputIt>
     directed_weighted_graph(InputIt first, InputIt last) noexcept {
         std::for_each(first, last, [this](auto const& i) { insert_node(i); });
     }
@@ -161,7 +161,6 @@ public:
         return directed_weighted_graph(other).swap(*this);
     }
 
-    // [xtd.modifiers]
     // Adds a new node with value value to the directed_weighted_graph if, and only if, there is no node equivalent
     // to value already stored.
     //
@@ -176,7 +175,6 @@ public:
         return false;
     }
 
-    // [xtd.modifiers]
     // Adds a new edge representing src → dst with weight weight, if, and only if, there is no
     // edge equivalent to value_type{src, dst, weight} already stored. Note:⁠ Nodes are allowed
     // to be connected to themselves.
@@ -187,15 +185,14 @@ public:
     // Throws std::runtime_error if either of is_node(src) or is_node(dst) are false.
     auto insert_edge(N const& src, N const& dst, E const& weight) -> bool {
         if (is_node(src) == false || is_node(dst) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::insert_edge when either src "
-                                        "or dst node does not exist");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::insert_edge when either src or dst node does not exist");
         }
 
         // Check if the edge doesn't already exist.
         if (find(src, dst, weight) == end()) {
             // Create required pointers to access the internal data structure.
             auto const& src_ptr = std::make_shared<N>(src);
-            auto const& dst_ptr = std::weak_ptr<N>(std::make_shared<N>(dst));
+            auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
             auto const& weight_ptr = std::make_shared<E>(weight);
 
             // Insert pointers into the set mapped to src_ptr.
@@ -205,7 +202,6 @@ public:
         return false;
     }
 
-    // [xtd.modifiers]
     // Replaces the original data, old_data, stored at this particular node by the replacement
     // data, new_data. Does nothing if new_data already exists as a node.
     //
@@ -216,8 +212,7 @@ public:
     // Throws std::runtime_error if is_node(old_data) is false.
     auto replace_node(N const& old_data, N const& new_data) -> bool {
         if (is_node(old_data) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::replace_node on a node that "
-                                        "doesn't exist");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::replace_node on a node that doesn't exist");
         }
         if (is_node(new_data) == false) {
             // By extracting the node handle, only the key gets repointed.
@@ -229,7 +224,6 @@ public:
         return false;
     }
 
-    // [xtd.modifiers]
     // The node equivalent to old_data in the directed_weighted_graph are replaced with instances of new_data. After
     // completing, every incoming and outgoing edge of old_data becomes an incoming/ougoing edge
     // of new_data, except that duplicate edges shall be removed.
@@ -239,8 +233,7 @@ public:
     // Throws std::runtime_error if either of is_node(old_data) or is_node(new_data) are false.
     auto merge_replace_node(N const& old_data, N const& new_data) -> void {
         if (is_node(old_data) == false || is_node(new_data) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::merge_replace_node on old or "
-                                        "new data if they don't exist in the directed_weighted_graph");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::merge_replace_node on old or new data if they don't exist in the directed_weighted_graph");
         }
         // By extracting the node handle, only the key gets repointed.
         auto node_handle = internal_.extract(std::make_shared<N>(old_data));
@@ -248,7 +241,6 @@ public:
         internal_.insert(std::move(node_handle));
     }
 
-    // [xtd.modifiers]
     // Erases all nodes equivalent to value, including all incoming and outgoing edges.
     //
     // Returns true if value was removed; false otherwise.
@@ -272,7 +264,6 @@ public:
         return true;
     }
 
-    // [xtd.modifiers]
     // Erases an edge representing src → dst with weight weight.
     //
     // Returns true if an edge was removed; false otherwise.
@@ -285,11 +276,10 @@ public:
     // total number of stored edges.
     auto erase_edge(N const& src, N const& dst, E const& weight) -> bool {
         if (is_node(src) == false || is_node(dst) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::erase_edge on src or dst if "
-                                        "they don't exist in the directed_weighted_graph");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::erase_edge on src or dst if they don't exist in the directed_weighted_graph");
         }
         auto const& src_ptr = std::make_shared<N>(src);
-        auto const& dst_ptr = std::weak_ptr<N>(std::make_shared<N>(dst));
+        auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
         auto const& weight_ptr = std::make_shared<E>(weight);
 
         // Get the iterator pointing to the pair with destination node and weight.
@@ -297,7 +287,6 @@ public:
         return internal_.at(src_ptr).erase(it) != internal_.at(src_ptr).end();
     }
 
-    // [xtd.modifiers]
     // Erases the edge pointed to by i.
     //
     // Complexity is amortised constant time.
@@ -310,7 +299,6 @@ public:
         return {internal_.erase(i.outer_), internal_.end()};
     }
 
-    // [xtd.modifiers]
     // Erases all edges between the iterators [i, s).
     //
     // Complexity is O(d), where d=std::distance(i, s).
@@ -322,15 +310,14 @@ public:
         return {internal_.erase(i.outer_, s.outer_), internal_.end()};
     }
 
-    // [xtd.modifiers]
-    // Erases all nodes from the directed_weighted_graph.
-    //
-    // empty() is true.
+    [[nodiscard]] auto size() const noexcept -> size_type {
+        return internal_.size();
+    }
+
     auto clear() noexcept -> void {
         internal_.clear();
     }
 
-    // [xtd.accessors]
     // Returns true if a node equivalent to value exists in the directed_weighted_graph, and false otherwise.
     //
     // Complexity is O(log (n)) time.
@@ -338,30 +325,25 @@ public:
         return internal_.find(std::make_shared<N>(value)) != internal_.end();
     }
 
-    // [xtd.accessors]
     // Returns true if there are no nodes in the directed_weighted_graph, and false otherwise.
     [[nodiscard]] auto empty() const noexcept -> bool {
         return internal_.empty();
     }
 
-    // [xtd.accessors]
     // Returns true if an edge src → dst exists in the directed_weighted_graph, and false otherwise.
     //
     // Throws std::runtime_error if either of is_node(src) or is_node(dst) are false.
     [[nodiscard]] auto is_connected(N const& src, N const& dst) const -> bool {
         if (is_node(src) == false || is_node(dst) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::is_connected if src or dst "
-                                        "node don't exist in the directed_weighted_graph");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::is_connected if src or dst node don't exist in the directed_weighted_graph");
         }
         auto const& set = internal_.at(std::make_shared<N>(src));
         // Return true if any of dst nodes match.
         return std::any_of(set.begin(),
-                            set.end(),
-                            [&dst](auto const& pair) { return *pair.first.lock() == dst; })
-                == true;
+                           set.end(),
+                           [&dst](auto const& pair) { return *pair.first.lock() == dst; }) == true;
     }
 
-    // [xtd.accessors]
     // Returns a sequence of all stored nodes, sorted in ascending order.
     //
     // Complexity is O(n), where n is the number of stored nodes.
@@ -374,7 +356,6 @@ public:
         return vec;
     }
 
-    // [xtd.accessors]
     // Returns a sequence of weights from src to dst, sorted in ascending order.
     //
     // Complexity is O(log (n) + e), where n is the number of stored nodes and e is the number of
@@ -383,8 +364,7 @@ public:
     // Throws std::runtime_error if either of is_node(src) or is_node(dst) are false.
     [[nodiscard]] auto weights(N const& src, N const& dst) const -> std::vector<E> {
         if (is_node(src) == false || is_node(dst) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::weights if src or dst node "
-                                        "don't exist in the directed_weighted_graph");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::weights if src or dst node don't exist in the directed_weighted_graph");
         }
         auto const& set = internal_.at(std::make_shared<N>(src));
         auto vec = std::vector<E>(set.size());
@@ -398,7 +378,6 @@ public:
         return vec;
     }
 
-    // [xtd.accessors]
     // Returns an iterator pointing to an edge equivalent to value_type{src, dst, weight}, or
     // end() if no such edge exists.
     //
@@ -406,14 +385,13 @@ public:
     // number of stored edges.
     [[nodiscard]] auto find(N const& src, N const& dst, E const& weight) noexcept -> iterator {
         auto const& src_ptr = std::make_shared<N>(src);
-        auto const& dst_ptr = std::weak_ptr<N>(std::make_shared<N>(dst));
+        auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
         auto const& weight_ptr = std::make_shared<E>(weight);
         return {internal_.end(),
                 internal_.find(src_ptr),
                 internal_.at(src_ptr).find({dst_ptr, weight_ptr})};
     }
 
-    // [xtd.accessors]
     // Returns a sequence of nodes (found from any immediate outgoing edge) connected to src,
     // sorted in ascending order, with respect to the connected nodes.
     //
@@ -422,8 +400,7 @@ public:
     // Throws std::runtime_error if is_node(src) is false.
     [[nodiscard]] auto connections(N const& src) const -> std::vector<N> {
         if (is_node(src) == false) {
-            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::connections if src doesn't "
-                                        "exist in the directed_weighted_graph");
+            throw std::runtime_error("Cannot call xtd::directed_weighted_graph<N, E>::connections if src doesn't exist in the directed_weighted_graph");
         }
         auto const& set = internal_.at(std::make_shared<N>(src));
         auto vec = std::vector<N>(set.size());
@@ -434,19 +411,16 @@ public:
         return vec;
     }
 
-    // [xtd.iterator.access]
     // Returns an iterator pointing to the first element in the container.
     [[nodiscard]] auto begin() const noexcept -> iterator {
         return {internal_.begin(), internal_.end()};
     }
 
-    // [xtd.iterator.access]
     // Returns an iterator pointing to the first element in the container.
     auto begin() noexcept -> iterator {
         return {internal_.begin(), internal_.end()};
     }
 
-    // [xtd.iterator.access]
     // Returns an iterator denoting the end of the iterable list that begin() points to.
     //
     // [begin(), end()) shall denote a valid iterable list.
@@ -454,13 +428,11 @@ public:
         return {internal_.end(), internal_.end()};
     }
 
-    // [xtd.iterator.access]
     // Returns an iterator denoting the end of the iterable list that begin() points to.
     auto end() noexcept -> iterator {
         return {internal_.end(), internal_.end()};
     }
 
-    // [xtd.cmp]
     // Returns true if *this and other contain exactly the same nodes and edges, and false
     // otherwise.
     //
@@ -497,7 +469,7 @@ public:
         return os;
     }
 
-private:
+   private:
     // Helper function for copy-and-swap idiom.
     auto swap(directed_weighted_graph& g) noexcept -> directed_weighted_graph& {
         internal_.swap(g.internal_);
@@ -519,7 +491,7 @@ private:
     }
 
     // Internal data structure uses a map to represent the directed_weighted_graph.
-    map_t internal_;
+    map_type internal_;
 };
 
 }  // namespace xtd
