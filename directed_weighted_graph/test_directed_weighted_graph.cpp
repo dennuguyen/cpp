@@ -232,3 +232,13 @@ TEST(nonempty_size, directed_weighted_graph) {
     g.insert_edge("1", "2", 1);  // Should have no effect on size.
     EXPECT_EQ(2, g.size());
 }
+
+TEST(is_empty, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>();
+    EXPECT_TRUE(g.empty());
+}
+
+TEST(is_not_empty, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2"});
+    EXPECT_FALSE(g.empty());
+}
