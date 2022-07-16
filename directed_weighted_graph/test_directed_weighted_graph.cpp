@@ -220,3 +220,15 @@ TEST(clear_graph, directed_weighted_graph) {
     g.clear();
     EXPECT_TRUE(g.empty());
 }
+
+TEST(empty_size, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>();
+    EXPECT_EQ(0, g.size());
+}
+
+TEST(nonempty_size, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2"});
+    EXPECT_EQ(2, g.size());
+    g.insert_edge("1", "2", 1);  // Should have no effect on size.
+    EXPECT_EQ(2, g.size());
+}
