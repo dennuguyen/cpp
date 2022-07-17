@@ -336,10 +336,21 @@ TEST(find_existing_edge, directed_weighted_graph) {
     EXPECT_NE(g.end(), g.find(1, 2, "a"));
 }
 
-// TEST(insert_unique_edges, directed_weighted_graph) {
-//     auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
-//     EXPECT_TRUE(g.insert_edge(1, 2, "a"));
-//     EXPECT_NE(g.end(), g.find(1, 2, "a"));
-//     EXPECT_TRUE(g.insert_edge(2, 3, "b"));
-//     EXPECT_NE(g.end(), g.find(2, 3, "b"));
-// }
+TEST(insert_unique_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
+    EXPECT_TRUE(g.insert_edge(1, 2, "a"));
+    EXPECT_NE(g.end(), g.find(1, 2, "a"));
+    EXPECT_TRUE(g.insert_edge(2, 3, "b"));
+    EXPECT_NE(g.end(), g.find(2, 3, "b"));
+    EXPECT_TRUE(g.insert_edge(2, 3, "c"));
+    EXPECT_NE(g.end(), g.find(2, 3, "c"));
+    EXPECT_TRUE(g.insert_edge(1, 1, "c"));
+    EXPECT_NE(g.end(), g.find(1, 1, "c"));
+}
+
+TEST(insert_duplicate_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
+    EXPECT_TRUE(g.insert_edge(1, 2, "a"));
+    EXPECT_NE(g.end(), g.find(1, 2, "a"));
+    EXPECT_FALSE(g.insert_edge(1, 2, "a"));
+}
