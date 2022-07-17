@@ -242,3 +242,15 @@ TEST(is_not_empty, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2"});
     EXPECT_FALSE(g.empty());
 }
+
+TEST(empty_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>();
+    auto v = std::vector<std::string>();
+    EXPECT_EQ(g.nodes(), v);
+}
+
+TEST(sorted_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"back", "apple", "bear", "arch", ""});
+    auto v = std::vector<std::string>({"", "apple", "arch", "back", "bear"});
+    EXPECT_EQ(g.nodes(), v);
+}
