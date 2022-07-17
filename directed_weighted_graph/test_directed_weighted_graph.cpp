@@ -254,3 +254,28 @@ TEST(sorted_nodes, directed_weighted_graph) {
     auto v = std::vector<std::string>({"", "apple", "arch", "back", "bear"});
     EXPECT_EQ(g.nodes(), v);
 }
+
+TEST(is_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>({3, 4, 6, 8, -4, -1, 0, 23, 53, -59});
+    EXPECT_TRUE(g.is_node(3));
+    EXPECT_TRUE(g.is_node(4));
+    EXPECT_TRUE(g.is_node(6));
+    EXPECT_TRUE(g.is_node(8));
+    EXPECT_TRUE(g.is_node(-4));
+    EXPECT_TRUE(g.is_node(-1));
+    EXPECT_TRUE(g.is_node(0));
+    EXPECT_TRUE(g.is_node(23));
+    EXPECT_TRUE(g.is_node(53));
+    EXPECT_TRUE(g.is_node(-59));
+}
+
+TEST(is_not_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>({3, 4, 6, 8, -4, -1, 0, 23, 53, -59});
+    EXPECT_FALSE(g.is_node(1));
+    EXPECT_FALSE(g.is_node(2));
+    EXPECT_FALSE(g.is_node(5));
+    EXPECT_FALSE(g.is_node(7));
+    EXPECT_FALSE(g.is_node(-2));
+    EXPECT_FALSE(g.is_node(59));
+    EXPECT_FALSE(g.is_node(-53));
+}
