@@ -20,7 +20,7 @@ class directed_weighted_graph {
     struct node_edge_comparator;
     using node_type = std::shared_ptr<N>;
     using neighbour_type = std::weak_ptr<N>;
-    using edge_type = std::shared_ptr<E>;
+    using edge_type = E;
     using pair_type = std::pair<neighbour_type, edge_type>;
     using set_type = std::set<pair_type, node_edge_comparator>;
     using map_type = std::map<node_type, set_type, node_comparator>;
@@ -45,7 +45,7 @@ class directed_weighted_graph {
         using is_transparent = void;
         constexpr auto operator()(pair_type const& lhs, pair_type const& rhs) const noexcept -> bool {
             // Compares nodes then compares edges if nodes are the same.
-            return *lhs.first.lock() != *rhs.first.lock() ? *lhs.first.lock() < *rhs.first.lock() : *lhs.second < *rhs.second;
+            return *lhs.first.lock() != *rhs.first.lock() ? *lhs.first.lock() < *rhs.first.lock() : lhs.second < rhs.second;
         }
     };
 
@@ -71,12 +71,12 @@ class directed_weighted_graph {
 
         // Returns the current from, to, and weight.
         auto operator*() noexcept -> reference {
-            return {*outer_->first, *inner_->first.lock(), *inner_->second};
+            return {*outer_->first, *inner_->first.lock(), inner_->second};
         }
 
         // Returns the current from, to, and weight.
         auto operator*() const noexcept -> reference {
-            return {*outer_->first, *inner_->first.lock(), *inner_->second};
+            return {*outer_->first, *inner_->first.lock(), inner_->second};
         }
 
         // Advances *this to the next element in the iterable list.
@@ -193,10 +193,9 @@ class directed_weighted_graph {
             // Create required pointers to access the internal data structure.
             auto const& src_ptr = std::make_shared<N>(src);
             auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
-            auto const& weight_ptr = std::make_shared<E>(weight);
 
             // Insert pointers into the set mapped to src_ptr.
-            internal_.at(src_ptr).insert({dst_ptr, weight_ptr});
+            internal_.at(src_ptr).insert({dst_ptr, weight});
             return true;
         }
         return false;
@@ -280,10 +279,9 @@ class directed_weighted_graph {
         }
         auto const& src_ptr = std::make_shared<N>(src);
         auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
-        auto const& weight_ptr = std::make_shared<E>(weight);
 
         // Get the iterator pointing to the pair with destination node and weight.
-        auto it = internal_.at(src_ptr).find({dst_ptr, weight_ptr});
+        auto it = internal_.at(src_ptr).find({dst_ptr, weight});
         return internal_.at(src_ptr).erase(it) != internal_.at(src_ptr).end();
     }
 
@@ -374,7 +372,7 @@ class directed_weighted_graph {
             set.end(),
             vec.begin(),
             [&dst](auto const& pair) { return *pair.first.lock() == dst; },
-            [](auto const& pair) { return *pair.second; });
+            [](auto const& pair) { return pair.second; });
         return vec;
     }
 
@@ -386,10 +384,9 @@ class directed_weighted_graph {
     [[nodiscard]] auto find(N const& src, N const& dst, E const& weight) noexcept -> iterator {
         auto const& src_ptr = std::make_shared<N>(src);
         auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
-        auto const& weight_ptr = std::make_shared<E>(weight);
         return {internal_.end(),
                 internal_.find(src_ptr),
-                internal_.at(src_ptr).find({dst_ptr, weight_ptr})};
+                internal_.at(src_ptr).find({dst_ptr, weight})};
     }
 
     // Returns a sequence of nodes (found from any immediate outgoing edge) connected to src,
