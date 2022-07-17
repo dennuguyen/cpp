@@ -415,3 +415,26 @@ TEST(replace_nonexisting_node, directed_weighted_graph) {
     ASSERT_TRUE(g.insert_edge(1, 2, 0));
     EXPECT_THROW(g.replace_node(0, 3), std::runtime_error);
 }
+
+TEST(removing_existing_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2});
+    EXPECT_TRUE(g.erase_node(1));
+    EXPECT_EQ(1, g.size());
+    EXPECT_TRUE(g.erase_node(2));
+    EXPECT_EQ(0, g.size());
+}
+
+TEST(removing_nonexisting_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>();
+    EXPECT_FALSE(g.erase_node(1));
+    EXPECT_FALSE(g.erase_node(0));
+}
+
+TEST(removing_existing_node_with_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2});
+    ASSERT_TRUE(g.insert_edge(1, 2, 0));
+    ASSERT_TRUE(g.insert_edge(2, 1, 0));
+    EXPECT_TRUE(g.erase_node(1));
+    EXPECT_EQ(g.end(), g.find(1, 2, 0));
+    EXPECT_EQ(g.end(), g.find(2, 1, 0));
+}

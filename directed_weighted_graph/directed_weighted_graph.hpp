@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -279,7 +278,7 @@ class directed_weighted_graph {
         if (is_node(value) == false) {
             return false;
         }
-        // Remove the set pairs with nodes first.
+        // Check all nodes and remove the value if there exists an edge.
         for (auto& [key, set] : internal_) {
             auto it = std::find_if(set.begin(), set.end(), [&value](auto const& pair) {
                 return *pair.first.lock() == value;
@@ -289,7 +288,7 @@ class directed_weighted_graph {
             }
         }
         // Remove key last.
-        internal_.erase(std::make_shared<N>(value));
+        internal_.erase(find_node(value));
         return true;
     }
 
@@ -507,8 +506,30 @@ class directed_weighted_graph {
         return *this;
     }
 
+    [[nodiscard]] auto find_node(std::shared_ptr<N> const& node) const noexcept
+        -> map_type::const_iterator {
+        return internal_.find(node);
+    }
+
+    auto find_node(std::shared_ptr<N> const& node) noexcept -> map_type::iterator {
+        return internal_.find(node);
+    }
+
     [[nodiscard]] auto find_node(N const& node) const noexcept -> map_type::const_iterator {
-        return internal_.find(std::make_shared<N>(node));
+        return find_node(std::make_shared<N>(node));
+    }
+
+    auto find_node(N const& node) noexcept -> map_type::iterator {
+        return find_node(std::make_shared<N>(node));
+    }
+
+    [[nodiscard]] auto find_node(std::weak_ptr<N> const& node) const noexcept
+        -> map_type::const_iterator {
+        return find_node(node.lock());
+    }
+
+    auto find_node(std::weak_ptr<N> const& node) noexcept -> map_type::iterator {
+        return find_node(node.lock());
     }
 
     // Returns a sequence of all stored edges, sorted in ascending order.
