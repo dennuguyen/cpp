@@ -47,6 +47,10 @@ class directed_weighted_graph {
         using is_transparent = void;
         constexpr auto operator()(pair_type const& lhs, pair_type const& rhs) const noexcept
             -> bool {
+            if (lhs.first.expired() || rhs.first.expired()) {
+                return false;
+            }
+
             // Compares nodes then compares edges if nodes are the same.
             return *lhs.first.lock() != *rhs.first.lock() ? *lhs.first.lock() < *rhs.first.lock()
                                                           : lhs.second < rhs.second;

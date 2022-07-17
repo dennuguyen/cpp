@@ -309,7 +309,25 @@ TEST(begin_empty_graph, directed_weighted_graph) {
 
 TEST(begin_graph_with_only_nodes, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 3});
-    EXPECT_EQ(g.end(), g.begin());
+    EXPECT_NE(g.end(), g.begin());  // Note that dereferencing this iterator is invalid.
+}
+
+TEST(begin_graph_with_nodes_and_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(1, 2, 1));
+    EXPECT_EQ(1, (*g.begin()).from);
+    EXPECT_EQ(2, (*g.begin()).to);
+    EXPECT_EQ(1, (*g.begin()).weight);
+}
+
+TEST(end_graph, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(1, 2, 1));
+    auto it = g.end();
+    --it;
+    EXPECT_EQ(1, (*g.begin()).from);
+    EXPECT_EQ(2, (*g.begin()).to);
+    EXPECT_EQ(1, (*g.begin()).weight);
 }
 
 TEST(find_existing_edge, directed_weighted_graph) {
