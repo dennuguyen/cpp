@@ -355,6 +355,12 @@ TEST(insert_duplicate_edges, directed_weighted_graph) {
     EXPECT_FALSE(g.insert_edge(1, 2, "a"));
 }
 
+TEST(insert_edge_with_missing_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
+    EXPECT_THROW(g.insert_edge(1, 0, "a"), std::runtime_error);
+    EXPECT_THROW(g.insert_edge(0, 5, "b"), std::runtime_error);
+}
+
 TEST(find_existing_edges, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 4, 5});
     ASSERT_TRUE(g.insert_edge(1, 5, 1230));
