@@ -279,3 +279,24 @@ TEST(is_not_node, directed_weighted_graph) {
     EXPECT_FALSE(g.is_node(59));
     EXPECT_FALSE(g.is_node(-53));
 }
+
+TEST(insert_unique_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>();
+    ASSERT_TRUE(g.empty());
+    EXPECT_TRUE(g.insert_node(1));
+    EXPECT_TRUE(g.is_node(1));
+    EXPECT_TRUE(g.insert_node(2));
+    EXPECT_TRUE(g.is_node(2));
+    EXPECT_TRUE(g.insert_node(123));
+    EXPECT_TRUE(g.is_node(123));
+}
+
+TEST(insert_duplicate_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 123});
+    ASSERT_TRUE(g.is_node(1));
+    ASSERT_TRUE(g.is_node(2));
+    ASSERT_TRUE(g.is_node(123));
+    EXPECT_FALSE(g.insert_node(1));
+    EXPECT_FALSE(g.insert_node(2));
+    EXPECT_FALSE(g.insert_node(123));
+}
