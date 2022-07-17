@@ -395,3 +395,23 @@ TEST(find_nonexisting_edges, directed_weighted_graph) {
     auto it3 = g.find(5, 1, 130);
     EXPECT_EQ(g.end(), it3);
 }
+
+TEST(replace_node_with_nonexisting_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2});
+    ASSERT_TRUE(g.insert_edge(1, 2, 0));
+    EXPECT_TRUE(g.replace_node(2, 3));
+    EXPECT_NE(g.end(), g.find(1, 3, 0));
+}
+
+TEST(replace_node_with_existing_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(1, 2, 0));
+    EXPECT_FALSE(g.replace_node(2, 3));
+    EXPECT_EQ(g.end(), g.find(1, 3, 0));
+}
+
+TEST(replace_nonexisting_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2});
+    ASSERT_TRUE(g.insert_edge(1, 2, 0));
+    EXPECT_THROW(g.replace_node(0, 3), std::runtime_error);
+}
