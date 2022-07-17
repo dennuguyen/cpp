@@ -26,7 +26,8 @@ TEST(initialiser_list_with_strings, directed_weighted_graph) {
 }
 
 TEST(initialiser_list_with_duplicates, directed_weighted_graph) {
-    auto g = xtd::directed_weighted_graph<std::string, std::string>({"abc", "abc", "cbd", "ebd", "ebd"});
+    auto g =
+        xtd::directed_weighted_graph<std::string, std::string>({"abc", "abc", "cbd", "ebd", "ebd"});
     EXPECT_EQ(3, g.size());
     EXPECT_TRUE(g.is_node("abc"));
     EXPECT_TRUE(g.is_node("cbd"));
@@ -300,3 +301,27 @@ TEST(insert_duplicate_nodes, directed_weighted_graph) {
     EXPECT_FALSE(g.insert_node(2));
     EXPECT_FALSE(g.insert_node(123));
 }
+
+TEST(begin_empty_graph, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>();
+    EXPECT_EQ(g.end(), g.begin());
+}
+
+TEST(begin_graph_with_only_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 3});
+    EXPECT_EQ(g.end(), g.begin());
+}
+
+TEST(find_existing_edge, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 123});
+    ASSERT_TRUE(g.insert_edge(1, 2, "a"));
+    EXPECT_NE(g.end(), g.find(1, 2, "a"));
+}
+
+// TEST(insert_unique_edges, directed_weighted_graph) {
+//     auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
+//     EXPECT_TRUE(g.insert_edge(1, 2, "a"));
+//     EXPECT_NE(g.end(), g.find(1, 2, "a"));
+//     EXPECT_TRUE(g.insert_edge(2, 3, "b"));
+//     EXPECT_NE(g.end(), g.find(2, 3, "b"));
+// }
