@@ -354,3 +354,38 @@ TEST(insert_duplicate_edges, directed_weighted_graph) {
     EXPECT_NE(g.end(), g.find(1, 2, "a"));
     EXPECT_FALSE(g.insert_edge(1, 2, "a"));
 }
+
+TEST(find_existing_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 4, 5});
+    ASSERT_TRUE(g.insert_edge(1, 5, 1230));
+    ASSERT_TRUE(g.insert_edge(1, 1, -100));
+    ASSERT_TRUE(g.insert_edge(1, 5, 130));
+    auto it1 = g.find(1, 5, 1230);
+    EXPECT_NE(g.end(), it1);
+    EXPECT_EQ(1, (*it1).from);
+    EXPECT_EQ(5, (*it1).to);
+    EXPECT_EQ(1230, (*it1).weight);
+    auto it2 = g.find(1, 1, -100);
+    EXPECT_NE(g.end(), it2);
+    EXPECT_EQ(1, (*it2).from);
+    EXPECT_EQ(1, (*it2).to);
+    EXPECT_EQ(-100, (*it2).weight);
+    auto it3 = g.find(1, 5, 130);
+    EXPECT_NE(g.end(), it3);
+    EXPECT_EQ(1, (*it3).from);
+    EXPECT_EQ(5, (*it3).to);
+    EXPECT_EQ(130, (*it3).weight);
+}
+
+TEST(find_nonexisting_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 4, 5});
+    ASSERT_TRUE(g.insert_edge(1, 5, 1230));
+    ASSERT_TRUE(g.insert_edge(1, 1, -100));
+    ASSERT_TRUE(g.insert_edge(1, 5, 130));
+    auto it1 = g.find(1, 5, 1231);
+    EXPECT_EQ(g.end(), it1);
+    auto it2 = g.find(1, 2, -100);
+    EXPECT_EQ(g.end(), it2);
+    auto it3 = g.find(5, 1, 130);
+    EXPECT_EQ(g.end(), it3);
+}
