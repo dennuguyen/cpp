@@ -308,12 +308,9 @@ class directed_weighted_graph {
                 "Cannot call xtd::directed_weighted_graph<N, E>::erase_edge on src or dst if they "
                 "don't exist in the directed_weighted_graph");
         }
-        auto const& src_ptr = std::make_shared<N>(src);
-        auto const& dst_ptr = neighbour_type(std::make_shared<N>(dst));
-
-        // Get the iterator pointing to the pair with destination node and weight.
-        auto it = internal_.at(src_ptr).find({dst_ptr, weight});
-        return internal_.at(src_ptr).erase(it) != internal_.at(src_ptr).end();
+        auto& it = find(src, dst, weight);                            // O(log(n) + log(e)).
+        auto& src_iter = find_node(src);                              // O(log(n)).
+        return src_iter->second.erase(it) != src_iter->second.end();  // O(1).
     }
 
     // Erases the edge pointed to by i.
@@ -364,8 +361,9 @@ class directed_weighted_graph {
                 "Cannot call xtd::directed_weighted_graph<N, E>::is_connected if src or dst node "
                 "don't exist in the directed_weighted_graph");
         }
-        return std::any_of(begin(), end(),
-                           [&src, &dst](auto const& i) { return i.from == src && i.to == dst; });
+        auto const& src_iter = find_node(src);
+        return std::any_of(src_iter->second.begin(), src_iter->second.end(),
+                           [&dst](auto const& i) { return *(i.first.lock()) == dst; });
     }
 
     // Returns a sequence of all stored nodes, sorted in ascending order.

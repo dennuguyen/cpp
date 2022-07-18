@@ -330,6 +330,34 @@ TEST(end_graph, directed_weighted_graph) {
     EXPECT_EQ(1, (*g.begin()).weight);
 }
 
+TEST(is_connected, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
+    ASSERT_TRUE(g.insert_edge("B", "D", 10));
+    EXPECT_TRUE(g.is_connected("B", "D"));
+    ASSERT_TRUE(g.insert_edge("B", "D", 0));
+    EXPECT_TRUE(g.is_connected("B", "D"));
+    ASSERT_TRUE(g.insert_edge("D", "B", 0));
+    EXPECT_TRUE(g.is_connected("D", "B"));
+    ASSERT_TRUE(g.insert_edge("A", "A", 0));
+    EXPECT_TRUE(g.is_connected("A", "A"));
+}
+
+TEST(is_not_connected, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
+    ASSERT_TRUE(g.insert_edge("B", "D", 10));
+    EXPECT_FALSE(g.is_connected("D", "B"));
+    EXPECT_FALSE(g.is_connected("D", "D"));
+    EXPECT_FALSE(g.is_connected("B", "B"));
+    EXPECT_FALSE(g.is_connected("A", "A"));
+    EXPECT_FALSE(g.is_connected("C", "A"));
+}
+
+TEST(checking_connection_of_nonexisting_nodes, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
+    EXPECT_THROW(static_cast<void>(g.is_connected("A", "AA")), std::runtime_error);
+    EXPECT_THROW(static_cast<void>(g.is_connected("BB", "B")), std::runtime_error);
+}
+
 TEST(find_existing_edge, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 123});
     ASSERT_TRUE(g.insert_edge(1, 2, "a"));
@@ -438,3 +466,5 @@ TEST(removing_existing_node_with_edges, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.find(1, 2, 0));
     EXPECT_EQ(g.end(), g.find(2, 1, 0));
 }
+
+TEST(erase_existing_edge, directed_weighted_graph) {}
