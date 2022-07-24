@@ -467,4 +467,35 @@ TEST(removing_existing_node_with_edges, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.find(2, 1, 0));
 }
 
-TEST(erase_existing_edge, directed_weighted_graph) {}
+TEST(erase_existing_edge, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
+    ASSERT_TRUE(g.insert_edge("A", "B", 1));
+    ASSERT_TRUE(g.insert_edge("B", "A", 1));
+    ASSERT_TRUE(g.insert_edge("A", "B", 2));
+    EXPECT_TRUE(g.erase_edge("A", "B", 1));
+    EXPECT_EQ(g.end(), g.find("A", "B", 1));
+    EXPECT_NE(g.end(), g.find("B", "A", 1));
+    EXPECT_NE(g.end(), g.find("A", "B", 2));
+    EXPECT_TRUE(g.erase_edge("B", "A", 1));
+    EXPECT_EQ(g.end(), g.find("A", "B", 1));
+    EXPECT_EQ(g.end(), g.find("B", "A", 1));
+    EXPECT_NE(g.end(), g.find("A", "B", 2));
+    EXPECT_TRUE(g.erase_edge("A", "B", 2));
+    EXPECT_EQ(g.end(), g.find("A", "B", 1));
+    EXPECT_EQ(g.end(), g.find("B", "A", 1));
+    EXPECT_EQ(g.end(), g.find("A", "B", 2));
+}
+
+TEST(erase_nonexisting_edge, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
+    EXPECT_FALSE(g.erase_edge("B", "A", 1));
+    EXPECT_FALSE(g.erase_edge("A", "B", 2));
+    ASSERT_TRUE(g.insert_edge("A", "A", 2));
+    EXPECT_FALSE(g.erase_edge("A", "A", 1));
+}
+
+TEST(erase_nonexisting_edge_with_nonexisting_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
+    EXPECT_THROW(g.erase_edge("C", "B", 1), std::runtime_error);
+    EXPECT_THROW(g.erase_edge("A", "C", 1), std::runtime_error);
+}

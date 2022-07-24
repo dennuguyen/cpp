@@ -308,9 +308,15 @@ class directed_weighted_graph {
                 "Cannot call xtd::directed_weighted_graph<N, E>::erase_edge on src or dst if they "
                 "don't exist in the directed_weighted_graph");
         }
-        auto& it = find(src, dst, weight);                            // O(log(n) + log(e)).
-        auto& src_iter = find_node(src);                              // O(log(n)).
-        return src_iter->second.erase(it) != src_iter->second.end();  // O(1).
+
+        if (find(src, dst, weight) == end()) {  // O(log(n) + O(log(e))).
+            return false;
+        }
+
+        auto const& src_iter = find_node(src);                                       // O(log(n)).
+        auto edge_iter = src_iter->second.find({std::make_shared<N>(dst), weight});  // O(log(e)).
+        src_iter->second.erase(edge_iter);                                           // O(1).
+        return true;
     }
 
     // Erases the edge pointed to by i.
