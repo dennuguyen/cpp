@@ -309,7 +309,7 @@ TEST(begin_empty_graph, directed_weighted_graph) {
 
 TEST(begin_graph_with_only_nodes, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 3});
-    EXPECT_NE(g.end(), g.begin());  // Note that dereferencing this iterator is invalid.
+    EXPECT_EQ(g.end(), g.begin());  // Note that dereferencing this iterator is invalid.
 }
 
 TEST(begin_graph_with_nodes_and_edges, directed_weighted_graph) {
@@ -499,3 +499,35 @@ TEST(erase_nonexisting_edge_with_nonexisting_node, directed_weighted_graph) {
     EXPECT_THROW(g.erase_edge("C", "B", 1), std::runtime_error);
     EXPECT_THROW(g.erase_edge("A", "C", 1), std::runtime_error);
 }
+
+TEST(erase_existing_edge_with_single_iterator, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(1, 1, 10));
+    ASSERT_TRUE(g.insert_edge(1, 2, 10));
+    ASSERT_TRUE(g.insert_edge(1, 3, 10));
+    auto it1 = g.find(1, 1, 10);
+    auto it2 = g.find(1, 2, 10);
+    auto it3 = g.find(1, 3, 10);
+    EXPECT_EQ(it2, g.erase_edge(it1));
+    EXPECT_EQ(g.end(), g.find(1, 1, 10));
+    EXPECT_EQ(it3, g.erase_edge(it2));
+    EXPECT_EQ(g.end(), g.find(1, 2, 10));
+    EXPECT_EQ(g.end(), g.erase_edge(it3));
+    EXPECT_EQ(g.end(), g.find(1, 3, 10));
+}
+
+// TEST(iterator_is_lexicographically_ordered, directed_weighted_graph) {
+//     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+//     ASSERT_TRUE(g.insert_edge(1, 1, 10));
+//     ASSERT_TRUE(g.insert_edge(1, 2, 10));
+//     ASSERT_TRUE(g.insert_edge(1, 3, 10));
+//     auto it1 = g.find(1, 1, 10);
+//     auto it2 = g.find(1, 2, 10);
+//     auto it3 = g.find(1, 3, 10);
+//     EXPECT_EQ(it2, g.erase_edge(it1));
+//     EXPECT_EQ(g.end(), g.find(1, 1, 10));
+//     EXPECT_EQ(it3, g.erase_edge(it2));
+//     EXPECT_EQ(g.end(), g.find(1, 2, 10));
+//     EXPECT_EQ(g.end(), g.erase_edge(it3));
+//     EXPECT_EQ(g.end(), g.find(1, 3, 10));
+// }

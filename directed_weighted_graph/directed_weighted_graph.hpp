@@ -9,6 +9,8 @@
 #include <utility>
 #include <vector>
 
+#include <iostream>
+
 #include "transform_if.hpp"
 
 namespace xtd {
@@ -70,8 +72,8 @@ class directed_weighted_graph {
         using pointer = void;
         using difference_type = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
-        using outer_iterator_type = typename map_type::const_iterator;
-        using inner_iterator_type = typename set_type::const_iterator;
+        using outer_iterator_type = typename map_type::iterator;
+        using inner_iterator_type = typename set_type::iterator;
 
         // Pursuant to the requirements of std::forward_iterator, two value-initialised iterators
         // shall compare equal.
@@ -88,14 +90,12 @@ class directed_weighted_graph {
         }
 
         // Advances *this to the next element in the iterable list.
+        // Don't need to check if it is end iterator because it is invalid to call such methods.
         auto operator++() noexcept -> iterator& {
-            if (inner_ != outer_->second.end()) {
-                if (++inner_ != outer_->second.end()) {
-                    return *this;
-                }
+            inner_++;
+            if (inner_ == outer_->second.end()) {
+                skip_forward_empty_inner();
             }
-            outer_++;
-            inner_ = outer_ == last_ ? inner_iterator_type{} : outer_->second.begin();
             return *this;
         }
 
@@ -107,20 +107,12 @@ class directed_weighted_graph {
 
         // Advances *this to the previous element in the iterable list.
         auto operator--() noexcept -> iterator& {
-            while (outer_ == last_ || inner_ == outer_->second.begin()) {
-                --outer_;
-                inner_ = outer_->second.end();
-            }
-            --inner_;
-            return *this;
-
             if (inner_ != outer_->second.begin()) {
-                if (--inner_ != outer_->second.begin()) {
-                    return *this;
-                }
+                --inner_;
+            } else {
+                --outer_;
+                skip_backward_empty_inner();
             }
-            outer_--;
-            inner_ = outer_->second.end();
             return *this;
         }
 
@@ -133,25 +125,49 @@ class directed_weighted_graph {
         // Returns true if *this and other are pointing to elements in the same iterable list, and
         // false otherwise.
         auto operator==(iterator const& other) const noexcept -> bool {
-            return outer_ == other.outer_ && (outer_ == last_ || inner_ == other.inner_);
+            return outer_ == other.outer_ && (outer_ == end_ || inner_ == other.inner_);
         }
 
         auto operator!=(iterator const& other) const noexcept -> bool { return !operator==(other); }
 
        private:
+        auto skip_forward_empty_inner() -> inner_iterator_type {
+            while(outer_ != end_ && inner_ == outer_->second.end()) {
+                ++outer_;
+                if (outer_ != end_) {
+                    inner_ = outer_->second.begin();
+                }
+            }
+            return inner_;
+        }
+
+        auto skip_backward_empty_inner() -> inner_iterator_type {
+            while(outer_ != begin_ && outer_->second.begin() == outer_->second.end()) {
+                --outer_;
+            }
+            if (outer_->second.begin() != outer_->second.end()) {
+                inner_ = outer_->second.end();
+                --inner_;
+            }
+            return inner_;
+        }
+
         // Constructs an iterator to a specific element in the directed_weighted_graph using the
         // first and last outer iterators of the directed_weighted_graph internal data structure.
         iterator(outer_iterator_type first, outer_iterator_type last) noexcept
-            : iterator(last, first, first == last ? inner_iterator_type{} : first->second.begin()) {
+            : iterator(first, last, first, first->second.begin()) {
         }
 
         // Constructs an iterator to a specific element in the directed_weighted_graph using the
         // outer and inner iterators of the directed_weighted_graph internal data structure.
-        iterator(outer_iterator_type last, outer_iterator_type outer,
+        iterator(outer_iterator_type first, outer_iterator_type last, outer_iterator_type outer,
                  inner_iterator_type inner) noexcept
-            : last_(last), outer_(outer), inner_(inner) {}
+            : begin_(first), end_(last), outer_(outer), inner_(inner) {
+                skip_forward_empty_inner();
+            }
 
-        outer_iterator_type last_;
+        outer_iterator_type begin_;
+        outer_iterator_type end_;
         outer_iterator_type outer_;
         inner_iterator_type inner_;
     };
@@ -309,13 +325,12 @@ class directed_weighted_graph {
                 "don't exist in the directed_weighted_graph");
         }
 
-        if (find(src, dst, weight) == end()) {  // O(log(n) + O(log(e))).
+        auto iter = find(src, dst, weight);  // O(log(n) + O(log(e))).
+        if (iter == end()) {
             return false;
         }
 
-        auto const& src_iter = find_node(src);                                       // O(log(n)).
-        auto edge_iter = src_iter->second.find({std::make_shared<N>(dst), weight});  // O(log(e)).
-        src_iter->second.erase(edge_iter);                                           // O(1).
+        iter.outer_->second.erase(iter.inner_);  // O(1).
         return true;
     }
 
@@ -328,7 +343,7 @@ class directed_weighted_graph {
     //
     // All iterators are invalidated.
     auto erase_edge(iterator i) noexcept -> iterator {
-        return {internal_.erase(i.outer_), internal_.end()};
+        return {i.begin_, i.end_, i.outer_, i.outer_->second.erase(i.inner_)};
     }
 
     // Erases all edges between the iterators [i, s).
@@ -422,7 +437,7 @@ class directed_weighted_graph {
             return end();
         }
 
-        return {internal_.end(), src_iter, inner_iter};
+        return {internal_.begin(), internal_.end(), src_iter, inner_iter};
     }
 
     // Returns a sequence of nodes (found from any immediate outgoing edge) connected to src,
