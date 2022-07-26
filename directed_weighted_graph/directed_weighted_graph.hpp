@@ -32,6 +32,19 @@ class directed_weighted_graph {
         N from;
         N to;
         E weight;
+
+        auto operator<=>(value_type const& other) const noexcept -> int {
+            if (from < other.from) return -1;
+            if (from > other.from) return 1;
+            if (to < other.to) return -1;
+            if (to > other.to) return 1;
+            if (weight < other.weight) return -1;
+            if (weight > other.weight) return 1;
+            return 0;
+        }
+
+        auto operator==(value_type const& other) const noexcept -> bool = default;
+        auto operator!=(value_type const& other) const noexcept -> bool = default;
     };
 
     // Custom comparator for map_type.
@@ -438,6 +451,7 @@ class directed_weighted_graph {
         }
 
         return {internal_.begin(), internal_.end(), src_iter, inner_iter};
+        // return std::find(begin(), end(), value_type(src, dst, weight));  // Also works but is O(n + e).
     }
 
     // Returns a sequence of nodes (found from any immediate outgoing edge) connected to src,
