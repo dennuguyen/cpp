@@ -420,13 +420,13 @@ class directed_weighted_graph {
                 "Cannot call xtd::directed_weighted_graph<N, E>::weights if src or dst node don't "
                 "exist in the directed_weighted_graph");
         }
-        auto const& set = internal_[std::make_shared<N>(src)];
-        auto vec = std::vector<E>(set.size());
-        // Get the edge from set and put it into vec if the dst node matches.
+
+        auto const& edges = find_node(src)->second;  // O(log(n)).
+        auto vec = std::vector<E>(edges.size());
         xtd::transform_if(
-            set.begin(), set.end(), vec.begin(),
+            edges.begin(), edges.end(), vec.begin(),
             [&dst](auto const& pair) { return *pair.first.lock() == dst; },
-            [](auto const& pair) { return pair.second; });
+            [](auto const& pair) { return pair.second; });  // O(e).
         return vec;
     }
 
