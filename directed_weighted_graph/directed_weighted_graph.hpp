@@ -135,8 +135,6 @@ class directed_weighted_graph {
             return temp;
         }
 
-        // Returns true if *this and other are pointing to elements in the same iterable list, and
-        // false otherwise.
         auto operator==(iterator const& other) const noexcept -> bool {
             return outer_ == other.outer_ && (outer_ == end_ || inner_ == other.inner_);
         }
@@ -165,14 +163,10 @@ class directed_weighted_graph {
             return inner_;
         }
 
-        // Constructs an iterator to a specific element in the directed_weighted_graph using the
-        // first and last outer iterators of the directed_weighted_graph internal data structure.
         iterator(outer_iterator_type first, outer_iterator_type last) noexcept
             : iterator(first, last, first, first->second.begin()) {
         }
 
-        // Constructs an iterator to a specific element in the directed_weighted_graph using the
-        // outer and inner iterators of the directed_weighted_graph internal data structure.
         iterator(outer_iterator_type first, outer_iterator_type last, outer_iterator_type outer,
                  inner_iterator_type inner) noexcept
             : begin_(first), end_(last), outer_(outer), inner_(inner) {
@@ -356,7 +350,7 @@ class directed_weighted_graph {
     //
     // All iterators are invalidated.
     auto erase_edge(iterator i) noexcept -> iterator {
-        return {i.begin_, i.end_, i.outer_, i.outer_->second.erase(i.inner_)};
+        return i.outer_ == i.end_ ? end() : iterator(i.begin_, i.end_, i.outer_, i.outer_->second.erase(i.inner_));
     }
 
     // Erases all edges between the iterators [i, s).
@@ -367,7 +361,10 @@ class directed_weighted_graph {
     //
     // All iterators are invalidated.
     auto erase_edge(iterator i, iterator s) noexcept -> iterator {
-        return {internal_.erase(i.outer_, s.outer_), internal_.end()};
+        while (i != s && i != end()) {
+            i = erase_edge(i);
+        }
+        return i;
     }
 
     [[nodiscard]] auto size() const noexcept -> size_type { return internal_.size(); }
@@ -451,7 +448,7 @@ class directed_weighted_graph {
         }
 
         return {internal_.begin(), internal_.end(), src_iter, inner_iter};
-        // return std::find(begin(), end(), value_type(src, dst, weight));  // Also works but is O(n + e).
+        // return std::find(begin(), end(), value_type(src, dst, weight));  // Also works but is O(e).
     }
 
     // Returns a sequence of nodes (found from any immediate outgoing edge) connected to src,

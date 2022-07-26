@@ -516,6 +516,16 @@ TEST(erase_existing_edge_with_single_iterator, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.find(1, 3, 10));
 }
 
+TEST(erase_nonexisting_edge_with_single_iterator, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    auto it1 = g.find(1, 1, 10);
+    EXPECT_EQ(g.end(), g.erase_edge(it1));
+    auto it2 = g.find(1, 2, 10);
+    EXPECT_EQ(g.end(), g.erase_edge(it2));
+    auto it3 = g.find(1, 3, 10);
+    EXPECT_EQ(g.end(), g.erase_edge(it3));
+}
+
 TEST(iterator_is_lexicographically_ordered, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
@@ -536,4 +546,65 @@ TEST(iterator_is_lexicographically_ordered, directed_weighted_graph) {
     EXPECT_EQ(iter++, g.find(3, 2, 10));
     EXPECT_EQ(iter++, g.find(3, 3, 4));
     EXPECT_EQ(iter, g.end());
+}
+
+TEST(erase_existing_edge_with_range_iterator, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(3, 2, 10));
+    ASSERT_TRUE(g.insert_edge(3, 2, 4));
+    ASSERT_TRUE(g.insert_edge(1, 3, 3));
+    ASSERT_TRUE(g.insert_edge(1, 1, 10));
+    ASSERT_TRUE(g.insert_edge(3, 3, 4));
+    ASSERT_TRUE(g.insert_edge(2, 3, 3));
+    ASSERT_TRUE(g.insert_edge(1, 2, 10));
+    ASSERT_TRUE(g.insert_edge(1, 3, 10));
+    auto first = g.find(1, 3, 3);
+    auto last = g.find(3, 2, 10);
+    EXPECT_EQ(last, g.erase_edge(first, last));
+    EXPECT_NE(g.end(), g.find(1, 1, 10));
+    EXPECT_NE(g.end(), g.find(1, 2, 10));
+    EXPECT_EQ(g.end(), g.find(1, 3, 3));
+    EXPECT_EQ(g.end(), g.find(1, 3, 10));
+    EXPECT_EQ(g.end(), g.find(2, 3, 3));
+    EXPECT_EQ(g.end(), g.find(3, 2, 4));
+    EXPECT_NE(g.end(), g.find(3, 2, 10));
+    EXPECT_NE(g.end(), g.find(3, 3, 4));
+}
+
+TEST(erase_edge_with_range_iterator_with_nonexistent_begin, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(3, 2, 10));
+    ASSERT_TRUE(g.insert_edge(3, 2, 4));
+    ASSERT_TRUE(g.insert_edge(1, 3, 3));
+    ASSERT_TRUE(g.insert_edge(1, 1, 10));
+    ASSERT_TRUE(g.insert_edge(3, 3, 4));
+    ASSERT_TRUE(g.insert_edge(2, 3, 3));
+    ASSERT_TRUE(g.insert_edge(1, 2, 10));
+    ASSERT_TRUE(g.insert_edge(1, 3, 10));
+    auto first = g.find(1, 3, 0);
+    auto last = g.find(3, 3, 4);
+    EXPECT_EQ(g.end(), g.erase_edge(first, last));
+}
+
+TEST(erase_edge_with_range_iterator_with_nonexistent_end, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    ASSERT_TRUE(g.insert_edge(3, 2, 10));
+    ASSERT_TRUE(g.insert_edge(3, 2, 4));
+    ASSERT_TRUE(g.insert_edge(1, 3, 3));
+    ASSERT_TRUE(g.insert_edge(1, 1, 10));
+    ASSERT_TRUE(g.insert_edge(3, 3, 4));
+    ASSERT_TRUE(g.insert_edge(2, 3, 3));
+    ASSERT_TRUE(g.insert_edge(1, 2, 10));
+    ASSERT_TRUE(g.insert_edge(1, 3, 10));
+    auto first = g.find(1, 3, 3);
+    auto last = g.find(4, 5, 10);
+    EXPECT_EQ(g.end(), g.erase_edge(first, last));
+    EXPECT_NE(g.end(), g.find(1, 1, 10));
+    EXPECT_NE(g.end(), g.find(1, 2, 10));
+    EXPECT_EQ(g.end(), g.find(1, 3, 3));
+    EXPECT_EQ(g.end(), g.find(1, 3, 10));
+    EXPECT_EQ(g.end(), g.find(2, 3, 3));
+    EXPECT_EQ(g.end(), g.find(3, 2, 4));
+    EXPECT_EQ(g.end(), g.find(3, 2, 10));
+    EXPECT_EQ(g.end(), g.find(3, 3, 4));
 }
