@@ -609,7 +609,7 @@ TEST(erase_edge_with_range_iterator_with_nonexistent_end, directed_weighted_grap
     EXPECT_EQ(g.end(), g.find(3, 3, 4));
 }
 
-TEST(weights_of_, directed_weighted_graph) {
+TEST(weights_of_graph_with_no_edges, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto v = g.weights(1, 2);
     EXPECT_EQ(0, v.size());
@@ -621,8 +621,8 @@ TEST(weights_of_graph_with_nonexisting_edges, directed_weighted_graph) {
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
     ASSERT_TRUE(g.insert_edge(3, 2, 11));
     ASSERT_TRUE(g.insert_edge(1, 3, 3));
-    auto v1 = g.weights(2, 3);
-    EXPECT_EQ(0, v1.size());
+    auto v = g.weights(2, 3);
+    EXPECT_EQ(0, v.size());
 }
 
 TEST(weights_of_graph_with_existing_edges, directed_weighted_graph) {
@@ -631,14 +631,49 @@ TEST(weights_of_graph_with_existing_edges, directed_weighted_graph) {
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
     ASSERT_TRUE(g.insert_edge(3, 2, 11));
     ASSERT_TRUE(g.insert_edge(1, 3, 3));
-    auto v1 = g.weights(3, 2);
-    EXPECT_EQ(4, v1.at(0));
-    EXPECT_EQ(10, v1.at(1));
-    EXPECT_EQ(11, v1.at(2));
+    auto v = g.weights(3, 2);
+    EXPECT_EQ(4, v.at(0));
+    EXPECT_EQ(10, v.at(1));
+    EXPECT_EQ(11, v.at(2));
+    EXPECT_EQ(3, v.size());
 }
 
 TEST(weights_of_graph_with_nonexisting_nodes, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     EXPECT_THROW(g.weights(3, 4), std::runtime_error);
     EXPECT_THROW(g.weights(0, 1), std::runtime_error);
+}
+
+TEST(connections_of_graph_with_no_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    auto v = g.connections(1);
+    EXPECT_EQ(0, v.size());
+}
+
+TEST(connections_of_graph_with_existing_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
+    ASSERT_TRUE(g.insert_edge(3, 2, 10));
+    ASSERT_TRUE(g.insert_edge(3, 10, 4));
+    ASSERT_TRUE(g.insert_edge(3, 3, 11));
+    ASSERT_TRUE(g.insert_edge(1, 3, 3));
+    auto v = g.connections(3);
+    EXPECT_EQ(2, v.at(0));
+    EXPECT_EQ(3, v.at(1));
+    EXPECT_EQ(10, v.at(2));
+    EXPECT_EQ(3, v.size());
+}
+
+TEST(connections_of_graph_with_nonexisting_edges, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
+    ASSERT_TRUE(g.insert_edge(3, 2, 10));
+    ASSERT_TRUE(g.insert_edge(3, 10, 4));
+    ASSERT_TRUE(g.insert_edge(3, 3, 11));
+    ASSERT_TRUE(g.insert_edge(1, 3, 3));
+    auto v = g.connections(2);
+    EXPECT_EQ(0, v.size());
+}
+
+TEST(connections_of_graph_with_nonexisting_node, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
+    EXPECT_THROW(g.connections(0), std::runtime_error);
 }

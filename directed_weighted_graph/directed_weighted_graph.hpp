@@ -427,6 +427,7 @@ class directed_weighted_graph {
             edges.begin(), edges.end(), vec.begin(),
             [&dst](auto const& pair) { return *pair.first.lock() == dst; },
             [](auto const& pair) { return pair.second; });  // O(e).
+        vec.shrink_to_fit();
         return vec;
     }
 
@@ -465,11 +466,11 @@ class directed_weighted_graph {
                 "exist "
                 "in the directed_weighted_graph");
         }
-        auto const& set = internal_.at(std::make_shared<N>(src));
-        auto vec = std::vector<N>(set.size());
-        // Get the dst node from set and copy to vec.
-        std::transform(set.begin(), set.end(), vec.begin(),
-                       [](auto const& pair) { return *pair.first.lock(); });
+        auto const& edges = find_node(src)->second;  // O(log(n)).
+        auto vec = std::vector<N>(edges.size());
+        std::transform(edges.begin(), edges.end(), vec.begin(),
+                       [](auto const& pair) { return *pair.first.lock(); });  // O(e).
+        vec.shrink_to_fit();
         return vec;
     }
 
