@@ -484,8 +484,8 @@ class directed_weighted_graph {
 
     auto end() noexcept -> iterator_type { return {internal_.end(), internal_.end()}; }
 
-    auto cbegin() const noexcept -> const_iterator_type { return {internal_.begin(), internal_.end()}; }
-    auto cend() const noexcept -> const_iterator_type { return {internal_.end(), internal_.end()}; }
+    auto cbegin() const noexcept -> const_iterator_type { return {internal_.cbegin(), internal_.cend()}; }
+    auto cend() const noexcept -> const_iterator_type { return {internal_.cend(), internal_.cend()}; }
 
 
     // Returns true if *this and other contain exactly the same nodes and edges, and false
