@@ -2,14 +2,13 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
 #include <set>
 #include <utility>
 #include <vector>
-
-#include <iostream>
 
 #include "transform_if.hpp"
 
@@ -21,12 +20,14 @@ class directed_weighted_graph {
     struct node_comparator;
     struct node_edge_comparator;
     using node_type = std::shared_ptr<N>;
-    using neighbour_type = std::weak_ptr<N>;
-    using edge_type = E;
-    using pair_type = std::pair<neighbour_type, edge_type>;
-    using set_type = std::set<pair_type, node_edge_comparator>;
-    using map_type = std::map<node_type, set_type, node_comparator>;
-    using size_type = typename map_type::size_type;
+    using edge_type = std::pair<std::weak_ptr<N>, E>;
+    using map_value_type = std::set<edge_type, node_edge_comparator>;
+    using map_key_type = std::map<node_type, map_value_type, node_comparator>;
+    using size_type = typename map_key_type::size_type;
+    using outer_iterator_type = typename map_key_type::iterator;
+    using inner_iterator_type = typename map_value_type::iterator;
+    using const_outer_iterator_type = typename map_key_type::const_iterator;
+    using const_inner_iterator_type = typename map_value_type::const_iterator;
 
     struct value_type {
         N from;
@@ -47,7 +48,7 @@ class directed_weighted_graph {
         auto operator!=(value_type const& other) const noexcept -> bool = default;
     };
 
-    // Custom comparator for map_type.
+    // Custom comparator for map_key_type.
     struct node_comparator {
         using is_transparent = void;
         constexpr auto operator()(node_type const& lhs, node_type const& rhs) const noexcept
@@ -56,10 +57,10 @@ class directed_weighted_graph {
         }
     };
 
-    // Custom comparator for set_type.
+    // Custom comparator for map_value_type.
     struct node_edge_comparator {
         using is_transparent = void;
-        constexpr auto operator()(pair_type const& lhs, pair_type const& rhs) const noexcept
+        constexpr auto operator()(edge_type const& lhs, edge_type const& rhs) const noexcept
             -> bool {
             if (lhs.first.expired() || rhs.first.expired()) {
                 return false;
@@ -75,8 +76,7 @@ class directed_weighted_graph {
     // weight, in ascending order.
     //
     // Nodes without any connections are not traversed.
-    //
-    // Note: xtd::directed_weighted_graph<N, E>::iterator models std::bidirectional_iterator.
+    template <typename OuterIteratorType, typename InnerIteratorType>
     class iterator {
        public:
         friend class directed_weighted_graph;
@@ -85,8 +85,6 @@ class directed_weighted_graph {
         using pointer = void;
         using difference_type = std::ptrdiff_t;
         using iterator_category = std::bidirectional_iterator_tag;
-        using outer_iterator_type = typename map_type::iterator;
-        using inner_iterator_type = typename set_type::iterator;
 
         // Pursuant to the requirements of std::forward_iterator, two value-initialised iterators
         // shall compare equal.
@@ -142,8 +140,8 @@ class directed_weighted_graph {
         auto operator!=(iterator const& other) const noexcept -> bool { return !operator==(other); }
 
        private:
-        auto skip_forward_empty_inner() -> inner_iterator_type {
-            while(outer_ != end_ && inner_ == outer_->second.end()) {
+        auto skip_forward_empty_inner() -> InnerIteratorType {
+            while (outer_ != end_ && inner_ == outer_->second.end()) {
                 ++outer_;
                 if (outer_ != end_) {
                     inner_ = outer_->second.begin();
@@ -152,8 +150,8 @@ class directed_weighted_graph {
             return inner_;
         }
 
-        auto skip_backward_empty_inner() -> inner_iterator_type {
-            while(outer_ != begin_ && outer_->second.begin() == outer_->second.end()) {
+        auto skip_backward_empty_inner() -> InnerIteratorType {
+            while (outer_ != begin_ && outer_->second.begin() == outer_->second.end()) {
                 --outer_;
             }
             if (outer_->second.begin() != outer_->second.end()) {
@@ -163,21 +161,24 @@ class directed_weighted_graph {
             return inner_;
         }
 
-        iterator(outer_iterator_type first, outer_iterator_type last) noexcept
+        iterator(OuterIteratorType first, OuterIteratorType last) noexcept
             : iterator(first, last, first, first->second.begin()) {
         }
 
-        iterator(outer_iterator_type first, outer_iterator_type last, outer_iterator_type outer,
-                 inner_iterator_type inner) noexcept
+        iterator(OuterIteratorType first, OuterIteratorType last, OuterIteratorType outer,
+                 InnerIteratorType inner) noexcept
             : begin_(first), end_(last), outer_(outer), inner_(inner) {
-                skip_forward_empty_inner();
-            }
+            skip_forward_empty_inner();
+        }
 
-        outer_iterator_type begin_;
-        outer_iterator_type end_;
-        outer_iterator_type outer_;
-        inner_iterator_type inner_;
+        OuterIteratorType begin_;
+        OuterIteratorType end_;
+        OuterIteratorType outer_;
+        InnerIteratorType inner_;
     };
+
+    using iterator_type = iterator<outer_iterator_type, inner_iterator_type>;
+    using const_iterator_type = iterator<const_outer_iterator_type, const_inner_iterator_type>;
 
     directed_weighted_graph() = default;
 
@@ -349,7 +350,7 @@ class directed_weighted_graph {
     // erased. If no such element exists, returns end().
     //
     // All iterators are invalidated.
-    auto erase_edge(iterator i) noexcept -> iterator {
+    auto erase_edge(iterator_type i) noexcept -> iterator_type {
         return i.outer_ == i.end_ ? end() : iterator(i.begin_, i.end_, i.outer_, i.outer_->second.erase(i.inner_));
     }
 
@@ -360,7 +361,7 @@ class directed_weighted_graph {
     // such element exists, returns end().
     //
     // All iterators are invalidated.
-    auto erase_edge(iterator i, iterator s) noexcept -> iterator {
+    auto erase_edge(iterator_type i, iterator_type s) noexcept -> iterator_type {
         while (i != s && i != end()) {
             i = erase_edge(i);
         }
@@ -436,7 +437,7 @@ class directed_weighted_graph {
     //
     // Complexity is O(log (n) + log (e)), where n is the number of stored nodes and e is the
     // number of stored edges.
-    [[nodiscard]] auto find(N const& src, N const& dst, E const& weight) noexcept -> iterator {
+    [[nodiscard]] auto find(N const& src, N const& dst, E const& weight) noexcept -> iterator_type {
         auto const& src_iter = find_node(src);
         if (src_iter == internal_.end()) {
             return end();
@@ -474,23 +475,21 @@ class directed_weighted_graph {
         return vec;
     }
 
-    // Returns an iterator pointing to the first element in the container.
-    [[nodiscard]] auto begin() const noexcept -> iterator {
+    [[nodiscard]] auto begin() const noexcept -> iterator_type {
         return {internal_.begin(), internal_.end()};
     }
 
-    // Returns an iterator pointing to the first element in the container.
-    auto begin() noexcept -> iterator { return {internal_.begin(), internal_.end()}; }
+    auto begin() noexcept -> iterator_type { return {internal_.begin(), internal_.end()}; }
 
-    // Returns an iterator denoting the end of the iterable list that begin() points to.
-    //
-    // [begin(), end()) shall denote a valid iterable list.
-    [[nodiscard]] auto end() const noexcept -> iterator {
+    [[nodiscard]] auto end() const noexcept -> iterator_type {
         return {internal_.end(), internal_.end()};
     }
 
-    // Returns an iterator denoting the end of the iterable list that begin() points to.
-    auto end() noexcept -> iterator { return {internal_.end(), internal_.end()}; }
+    auto end() noexcept -> iterator_type { return {internal_.end(), internal_.end()}; }
+
+    auto cbegin() const noexcept -> const_iterator_type { return {internal_.begin(), internal_.end()}; }
+    auto cend() const noexcept -> const_iterator_type { return {internal_.end(), internal_.end()}; }
+
 
     // Returns true if *this and other contain exactly the same nodes and edges, and false
     // otherwise.
@@ -498,8 +497,10 @@ class directed_weighted_graph {
     // Complexity is O(n + e) where n is the sum of stored nodes in *this and other, and e is
     // the sum of stored edges in *this and other.
     [[nodiscard]] auto operator==(directed_weighted_graph const& other) const noexcept -> bool {
-        // Graphs are the same if sorted nodes and sorted edges are the same.
-        return nodes() == other.nodes() && edges() == other.edges();
+        if (nodes() == other.nodes()) {
+            return std::equal(cbegin(), cend(), other.cbegin());
+        }
+        return false;
     }
 
     // Behaves as a formatted output function of os.
@@ -538,28 +539,28 @@ class directed_weighted_graph {
     }
 
     [[nodiscard]] auto find_node(std::shared_ptr<N> const& node) const noexcept
-        -> map_type::const_iterator {
+        -> map_key_type::const_iterator {
         return internal_.find(node);
     }
 
-    auto find_node(std::shared_ptr<N> const& node) noexcept -> map_type::iterator {
+    auto find_node(std::shared_ptr<N> const& node) noexcept -> map_key_type::iterator {
         return internal_.find(node);
     }
 
-    [[nodiscard]] auto find_node(N const& node) const noexcept -> map_type::const_iterator {
+    [[nodiscard]] auto find_node(N const& node) const noexcept -> map_key_type::const_iterator {
         return find_node(std::make_shared<N>(node));
     }
 
-    auto find_node(N const& node) noexcept -> map_type::iterator {
+    auto find_node(N const& node) noexcept -> map_key_type::iterator {
         return find_node(std::make_shared<N>(node));
     }
 
     [[nodiscard]] auto find_node(std::weak_ptr<N> const& node) const noexcept
-        -> map_type::const_iterator {
+        -> map_key_type::const_iterator {
         return find_node(node.lock());
     }
 
-    auto find_node(std::weak_ptr<N> const& node) noexcept -> map_type::iterator {
+    auto find_node(std::weak_ptr<N> const& node) noexcept -> map_key_type::iterator {
         return find_node(node.lock());
     }
 
@@ -579,7 +580,7 @@ class directed_weighted_graph {
     }
 
     // Internal data structure uses a map to represent the directed_weighted_graph.
-    map_type internal_;
+    map_key_type internal_;
 };
 
 }  // namespace xtd
