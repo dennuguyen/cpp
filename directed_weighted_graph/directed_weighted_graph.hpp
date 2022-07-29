@@ -46,6 +46,11 @@ class directed_weighted_graph {
 
         auto operator==(value_type const& other) const noexcept -> bool = default;
         auto operator!=(value_type const& other) const noexcept -> bool = default;
+
+        friend auto operator<<(std::ostream& os, value_type const& v) noexcept -> std::ostream& {
+            os << v.from << ": (" << v.to << ", " << v.weight << ")";
+            return os;
+        }
     };
 
     // Custom comparator for map_key_type.
@@ -494,10 +499,13 @@ class directed_weighted_graph {
     // Complexity is O(n + e) where n is the sum of stored nodes in *this and other, and e is
     // the sum of stored edges in *this and other.
     [[nodiscard]] auto operator==(directed_weighted_graph const& other) const noexcept -> bool {
-        if (nodes() == other.nodes()) {
-            return std::equal(cbegin(), cend(), other.cbegin());
+        if (nodes() != other.nodes()) {
+            return false;
         }
-        return false;
+        if ((cbegin() == cend()) ^ (other.cbegin() == other.cend())) {
+            return false;
+        }
+        return std::equal(cbegin(), cend(), other.cbegin());
     }
 
     // Behaves as a formatted output function of os.
@@ -525,6 +533,12 @@ class directed_weighted_graph {
     friend auto operator<<(std::ostream& os, directed_weighted_graph const& g) noexcept
         -> std::ostream& {
         (void)g;
+        // std::for_each(cbegin(), cend(), [](auto const& i){
+        //     std::cout << i << std::endl;
+        // });
+        // std::for_each(other.cbegin(), other.cend(), [](auto const& i){
+        //     std::cout << i << std::endl;
+        // });
         return os;
     }
 

@@ -677,3 +677,41 @@ TEST(connections_of_graph_with_nonexisting_node, directed_weighted_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
     EXPECT_THROW(g.connections(0), std::runtime_error);
 }
+
+TEST(comparing_empty_graphs, directed_weighted_graph) {
+    auto g1 = xtd::directed_weighted_graph<int, int>();
+    auto g2 = xtd::directed_weighted_graph<int, int>();
+    EXPECT_TRUE(g1 == g2);
+}
+
+TEST(comparing_equal_graphs_with_only_nodes, directed_weighted_graph) {
+    auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
+    EXPECT_TRUE(g1 == g2);
+}
+
+TEST(comparing_equal_graphs_with_edges, directed_weighted_graph) {
+    auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
+    g1.insert_edge(1, 2, 1);
+    g2.insert_edge(1, 2, 1);
+    g1.insert_edge(1, 2, 3);
+    g2.insert_edge(1, 2, 3);
+    EXPECT_TRUE(g1 == g2);
+}
+
+TEST(comparing_unequal_graphs_with_both_graph_with_edges, directed_weighted_graph) {
+    auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
+    g1.insert_edge(1, 2, 1);
+    g2.insert_edge(2, 1, 1);
+    EXPECT_FALSE(g1 == g2);
+}
+
+TEST(comparing_unequal_graphs_with_one_graph_withedges, directed_weighted_graph) {
+    auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
+    auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
+    g2.insert_edge(1, 2, 1);
+    g2.insert_edge(2, 1, 1);
+    EXPECT_FALSE(g1 == g2);
+}
