@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -306,12 +305,12 @@ class directed_weighted_graph {
             return false;
         }
         // Check all nodes and remove the value if there exists an edge.
-        for (auto& [key, set] : internal_) {
-            auto it = std::find_if(set.begin(), set.end(), [&value](auto const& pair) {
+        for (auto& [k, v] : internal_) {
+            auto it = std::find_if(v.begin(), v.end(), [&value](auto const& pair) {
                 return *pair.first.lock() == value;
             });
-            if (it != set.end()) {
-                set.erase(it);
+            if (it != v.end()) {
+                v.erase(it);
             }
         }
         // Remove key last.
@@ -514,39 +513,15 @@ class directed_weighted_graph {
         return std::equal(cbegin(), cend(), other.cbegin());
     }
 
-    // Behaves as a formatted output function of os.
-    //
-    // Returns os.
-    //
-    // The format is specified thusly:
-    // 		[source_node1] [edges1]
-    // 		[source_node2] [edges2]
-    // 		...
-    // 		[source_noden] [edgesn]
-    // [source_node1], …, [source_noden] are placeholders for all nodes that the
-    // directed_weighted_graph stores, sorted in ascending order. [edges1], …, [edgesn] are
-    // placeholders for:
-    // 		(
-    // 		 [noden_connected_node1] | [weight]
-    // 		 [noden_connected_node2] | [weight]
-    // 		 ...
-    // 		 [noden_connected_noden] | [weight]
-    // 		)
-    // where [noden_conencted_node1] | [weight], …, [noden_connected_noden] | [weight] are
-    // placeholders for each node’s connections and corresponding weight, also sorted in
-    // ascending order. Note: If a node doesn’t have any connections, then its corresponding
-    // [edgesn] should be a line-separated pair of parentheses.
     friend auto operator<<(std::ostream& os, directed_weighted_graph const& g) noexcept
         -> std::ostream& {
-        for (auto const& i : g) {
-            // std::cout << i << std::endl;
+        for (auto const& [k, v] : g.internal_) {
+            os << *k << " (" << std::endl;
+            for (auto const& [n, w] : v) {
+                os << "  " << *n.lock() << " | " << w << std::endl;
+            }
+            os << ")" << std::endl;
         }
-        // std::for_each(cbegin(), cend(), [](auto const& i){
-        //     std::cout << i << std::endl;
-        // });
-        // std::for_each(other.cbegin(), other.cend(), [](auto const& i){
-        //     std::cout << i << std::endl;
-        // });
         return os;
     }
 

@@ -708,10 +708,28 @@ TEST(comparing_unequal_graphs_with_both_graph_with_edges, directed_weighted_grap
     EXPECT_FALSE(g1 == g2);
 }
 
-TEST(comparing_unequal_graphs_with_one_graph_withedges, directed_weighted_graph) {
+TEST(comparing_unequal_graphs_with_one_graph_with_edges, directed_weighted_graph) {
     auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
     g2.insert_edge(1, 2, 1);
     g2.insert_edge(2, 1, 1);
     EXPECT_FALSE(g1 == g2);
+}
+
+TEST(outputting_graph, directed_weighted_graph) {
+    auto g = xtd::directed_weighted_graph<int, int>({3, 2, 1});
+    g.insert_edge(1, 2, 4);
+    g.insert_edge(1, 2, 3);
+    auto actual = std::stringstream();
+    actual << g;
+    auto output =
+        "1 (\n"
+        "  2 | 3\n"
+        "  2 | 4\n"
+        ")\n"
+        "2 (\n"
+        ")\n"
+        "3 (\n"
+        ")\n";
+    EXPECT_EQ(output, actual.str());
 }
