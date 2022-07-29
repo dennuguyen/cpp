@@ -17,6 +17,8 @@ namespace xtd {
 template <typename N, typename E>
 class directed_weighted_graph {
    public:
+    template <typename OuterIteratorType, typename InnerIteratorType>
+    class iterator;
     struct node_comparator;
     struct node_edge_comparator;
     using node_type = std::shared_ptr<N>;
@@ -24,6 +26,8 @@ class directed_weighted_graph {
     using map_value_type = std::set<edge_type, node_edge_comparator>;
     using map_key_type = std::map<node_type, map_value_type, node_comparator>;
     using size_type = typename map_key_type::size_type;
+    using iterator_type = iterator<typename map_key_type::iterator, typename map_value_type::iterator>;
+    using const_iterator_type = iterator<typename map_key_type::const_iterator, typename map_value_type::const_iterator>;
 
     struct value_type {
         N from;
@@ -172,9 +176,6 @@ class directed_weighted_graph {
         OuterIteratorType outer_;
         InnerIteratorType inner_;
     };
-
-    using iterator_type = iterator<map_key_type::iterator, map_value_type::iterator>;
-    using const_iterator_type = iterator<map_key_type::const_iterator, map_value_type::const_iterator>;
 
     directed_weighted_graph() = default;
 
