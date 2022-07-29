@@ -26,8 +26,10 @@ class directed_weighted_graph {
     using map_value_type = std::set<edge_type, node_edge_comparator>;
     using map_key_type = std::map<node_type, map_value_type, node_comparator>;
     using size_type = typename map_key_type::size_type;
-    using iterator_type = iterator<typename map_key_type::iterator, typename map_value_type::iterator>;
-    using const_iterator_type = iterator<typename map_key_type::const_iterator, typename map_value_type::const_iterator>;
+    using iterator_type =
+        iterator<typename map_key_type::iterator, typename map_value_type::iterator>;
+    using const_iterator_type =
+        iterator<typename map_key_type::const_iterator, typename map_value_type::const_iterator>;
 
     struct value_type {
         N from;
@@ -167,8 +169,7 @@ class directed_weighted_graph {
         }
 
         iterator(OuterIteratorType first, OuterIteratorType last) noexcept
-            : iterator(first, last, first, first->second.begin()) {
-        }
+            : iterator(first, last, first, first->second.begin()) {}
 
         iterator(OuterIteratorType first, OuterIteratorType last, OuterIteratorType outer,
                  InnerIteratorType inner) noexcept
@@ -353,7 +354,9 @@ class directed_weighted_graph {
     //
     // All iterators are invalidated.
     auto erase_edge(iterator_type i) noexcept -> iterator_type {
-        return i.outer_ == i.end_ ? end() : iterator(i.begin_, i.end_, i.outer_, i.outer_->second.erase(i.inner_));
+        return i.outer_ == i.end_
+                   ? end()
+                   : iterator(i.begin_, i.end_, i.outer_, i.outer_->second.erase(i.inner_));
     }
 
     // Erases all edges between the iterators [i, s).
@@ -476,21 +479,25 @@ class directed_weighted_graph {
         return vec;
     }
 
-    [[nodiscard]] auto begin() const noexcept -> iterator_type {
+    [[nodiscard]] auto begin() const noexcept -> const_iterator_type {
         return {internal_.begin(), internal_.end()};
     }
 
     auto begin() noexcept -> iterator_type { return {internal_.begin(), internal_.end()}; }
 
-    [[nodiscard]] auto end() const noexcept -> iterator_type {
+    [[nodiscard]] auto end() const noexcept -> const_iterator_type {
         return {internal_.end(), internal_.end()};
     }
 
     auto end() noexcept -> iterator_type { return {internal_.end(), internal_.end()}; }
 
-    auto cbegin() const noexcept -> const_iterator_type { return {internal_.cbegin(), internal_.cend()}; }
-    auto cend() const noexcept -> const_iterator_type { return {internal_.cend(), internal_.cend()}; }
+    auto cbegin() const noexcept -> const_iterator_type {
+        return {internal_.cbegin(), internal_.cend()};
+    }
 
+    auto cend() const noexcept -> const_iterator_type {
+        return {internal_.cend(), internal_.cend()};
+    }
 
     // Returns true if *this and other contain exactly the same nodes and edges, and false
     // otherwise.
@@ -531,6 +538,9 @@ class directed_weighted_graph {
     // [edgesn] should be a line-separated pair of parentheses.
     friend auto operator<<(std::ostream& os, directed_weighted_graph const& g) noexcept
         -> std::ostream& {
+        for (auto const& i : g) {
+            // std::cout << i << std::endl;
+        }
         // std::for_each(cbegin(), cend(), [](auto const& i){
         //     std::cout << i << std::endl;
         // });
