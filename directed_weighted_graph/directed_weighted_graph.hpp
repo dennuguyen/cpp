@@ -445,14 +445,13 @@ class directed_weighted_graph {
             return end();
         }
 
-        auto const& node_edge_set = internal_[src_iter->first];
-        auto const& inner_iter = node_edge_set.find({std::make_shared<N>(dst), weight});
-        if (inner_iter == node_edge_set.end()) {
+        auto const& edges = internal_[src_iter->first];
+        auto const& edge_iter = edges.find({std::make_shared<N>(dst), weight});
+        if (edge_iter == edges.end()) {
             return end();
         }
 
-        return {internal_.begin(), internal_.end(), src_iter, inner_iter};
-        // return std::find(begin(), end(), value_type(src, dst, weight));  // Also works but is O(e).
+        return {internal_.begin(), internal_.end(), src_iter, edge_iter};
     }
 
     // Returns a sequence of nodes (found from any immediate outgoing edge) connected to src,
@@ -532,7 +531,6 @@ class directed_weighted_graph {
     // [edgesn] should be a line-separated pair of parentheses.
     friend auto operator<<(std::ostream& os, directed_weighted_graph const& g) noexcept
         -> std::ostream& {
-        (void)g;
         // std::for_each(cbegin(), cend(), [](auto const& i){
         //     std::cout << i << std::endl;
         // });
@@ -573,21 +571,6 @@ class directed_weighted_graph {
 
     auto find_node(std::weak_ptr<N> const& node) noexcept -> map_key_type::iterator {
         return find_node(node.lock());
-    }
-
-    // Returns a sequence of all stored edges, sorted in ascending order.
-    //
-    // Complexity is O(n), where n is the number of stored nodes.
-    [[nodiscard]] auto edges() const noexcept -> std::vector<E> {
-        auto vec = std::vector<E>(internal_.size());
-        for (auto const& [key, set] : internal_) {
-            for (auto& [node, weight] : set) {
-                auto const& weights_vec = weights(*key, *(node.lock()));
-                std::merge(vec.begin(), vec.end(), weights_vec.begin(), weights_vec.end(),
-                           vec.begin());
-            }
-        }
-        return vec;
     }
 
     // Internal data structure uses a map to represent the directed_weighted_graph.
