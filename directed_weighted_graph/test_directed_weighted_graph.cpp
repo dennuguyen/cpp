@@ -1,31 +1,31 @@
 #include "directed_weighted_graph.hpp"
 #include "gtest/gtest.h"
 
-TEST(empty_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, empty_graph) {
     auto g = xtd::directed_weighted_graph<int, std::string>();
     EXPECT_TRUE(g.empty());
 }
 
-TEST(empty_initialiser_list, directed_weighted_graph) {
+TEST(directed_weighted_graph, empty_initialiser_list) {
     auto g = xtd::directed_weighted_graph<int, std::string>({});
     EXPECT_TRUE(g.empty());
 }
 
-TEST(initialiser_list_with_ints, directed_weighted_graph) {
+TEST(directed_weighted_graph, initialiser_list_with_ints) {
     auto g = xtd::directed_weighted_graph<int, std::string>({2, 3, 4});
     EXPECT_TRUE(g.is_node(2));
     EXPECT_TRUE(g.is_node(3));
     EXPECT_TRUE(g.is_node(4));
 }
 
-TEST(initialiser_list_with_strings, directed_weighted_graph) {
+TEST(directed_weighted_graph, initialiser_list_with_strings) {
     auto g = xtd::directed_weighted_graph<std::string, std::string>({"abc", "cbd", "ebd"});
     EXPECT_TRUE(g.is_node("abc"));
     EXPECT_TRUE(g.is_node("cbd"));
     EXPECT_TRUE(g.is_node("ebd"));
 }
 
-TEST(initialiser_list_with_duplicates, directed_weighted_graph) {
+TEST(directed_weighted_graph, initialiser_list_with_duplicates) {
     auto g =
         xtd::directed_weighted_graph<std::string, std::string>({"abc", "abc", "cbd", "ebd", "ebd"});
     EXPECT_EQ(3, g.size());
@@ -34,13 +34,13 @@ TEST(initialiser_list_with_duplicates, directed_weighted_graph) {
     EXPECT_TRUE(g.is_node("ebd"));
 }
 
-TEST(empty_iterator_constructor, directed_weighted_graph) {
+TEST(directed_weighted_graph, empty_iterator_constructor) {
     auto il = std::initializer_list<int>();
     auto g = xtd::directed_weighted_graph<int, std::string>(il.begin(), il.end());
     EXPECT_TRUE(g.empty());
 }
 
-TEST(full_range_iterator_constructor, directed_weighted_graph) {
+TEST(directed_weighted_graph, full_range_iterator_constructor) {
     auto il = {300000000, 5, 1, 912, -4, -335, -1, 0, 81};
     auto g = xtd::directed_weighted_graph<int, double>(il.begin(), il.end());
     EXPECT_TRUE(g.is_node(300000000));
@@ -54,7 +54,7 @@ TEST(full_range_iterator_constructor, directed_weighted_graph) {
     EXPECT_TRUE(g.is_node(81));
 }
 
-TEST(partial_range_iterator_constructor, directed_weighted_graph) {
+TEST(directed_weighted_graph, partial_range_iterator_constructor) {
     auto il = {"first", "second", "third", "fourth", "fifth", "sixth"};
     auto g = xtd::directed_weighted_graph<std::string, double>(il.begin() + 1, il.begin() + 4);
     EXPECT_FALSE(g.is_node("first"));
@@ -65,7 +65,7 @@ TEST(partial_range_iterator_constructor, directed_weighted_graph) {
     EXPECT_FALSE(g.is_node("sixth"));
 }
 
-TEST(iterator_constructor_with_duplicates, directed_weighted_graph) {
+TEST(directed_weighted_graph, iterator_constructor_with_duplicates) {
     auto il = {"first", "second", "second", "third", "fourth", "fifth", "sixth"};
     auto g = xtd::directed_weighted_graph<std::string, double>(il.begin() + 1, il.begin() + 4);
     EXPECT_EQ(2, g.size());
@@ -77,14 +77,14 @@ TEST(iterator_constructor_with_duplicates, directed_weighted_graph) {
     EXPECT_FALSE(g.is_node("sixth"));
 }
 
-TEST(copy_empty_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, copy_empty_graph) {
     auto g1 = xtd::directed_weighted_graph<int, int>();
     auto g2 = xtd::directed_weighted_graph<int, int>(g1);
     EXPECT_TRUE(g1.empty());
     EXPECT_TRUE(g2.empty());
 }
 
-TEST(copy_graph_with_only_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, copy_graph_with_only_nodes) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6, 8, -4, -1, 0});
     auto g2 = xtd::directed_weighted_graph<int, int>(g1);
     EXPECT_TRUE(g1.is_node(3));
@@ -103,7 +103,7 @@ TEST(copy_graph_with_only_nodes, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_node(0));
 }
 
-TEST(copy_graph_with_nodes_and_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, copy_graph_with_nodes_and_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6});
     g1.insert_edge(3, 4, 1);
     ASSERT_TRUE(g1.is_connected(3, 4));
@@ -118,13 +118,13 @@ TEST(copy_graph_with_nodes_and_edges, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_connected(3, 4));
 }
 
-TEST(move_empty_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, move_empty_graph) {
     auto g1 = xtd::directed_weighted_graph<int, int>();
     auto g2 = xtd::directed_weighted_graph<int, int>(std::move(g1));
     EXPECT_TRUE(g2.empty());
 }
 
-TEST(move_graph_with_only_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, move_graph_with_only_nodes) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6});
     auto g2 = xtd::directed_weighted_graph<int, int>(std::move(g1));
     EXPECT_TRUE(g2.is_node(3));
@@ -132,7 +132,7 @@ TEST(move_graph_with_only_nodes, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_node(6));
 }
 
-TEST(move_graph_with_nodes_and_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, move_graph_with_nodes_and_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6});
     g1.insert_edge(3, 4, 1);
     g1.insert_edge(3, 6, 1);
@@ -144,7 +144,7 @@ TEST(move_graph_with_nodes_and_edges, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_connected(3, 6));
 }
 
-TEST(copy_assign_empty_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, copy_assign_empty_graph) {
     auto g1 = xtd::directed_weighted_graph<int, int>();
     auto g2 = xtd::directed_weighted_graph<int, int>({0, -1, -2});
     g2 = g1;
@@ -152,7 +152,7 @@ TEST(copy_assign_empty_graph, directed_weighted_graph) {
     EXPECT_TRUE(g2.empty());
 }
 
-TEST(copy_assign_graph_with_only_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, copy_assign_graph_with_only_nodes) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6});
     auto g2 = xtd::directed_weighted_graph<int, int>({0, -1, -2});
     g2 = g1;
@@ -164,7 +164,7 @@ TEST(copy_assign_graph_with_only_nodes, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_node(6));
 }
 
-TEST(copy_assign_graph_with_nodes_and_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, copy_assign_graph_with_nodes_and_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6});
     g1.insert_edge(3, 4, 1);
     g1.insert_edge(3, 6, 1);
@@ -184,14 +184,14 @@ TEST(copy_assign_graph_with_nodes_and_edges, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_connected(3, 6));
 }
 
-TEST(move_assign_empty_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, move_assign_empty_graph) {
     auto g1 = xtd::directed_weighted_graph<int, int>();
     auto g2 = xtd::directed_weighted_graph<int, int>({0, -1, -2});
     g2 = std::move(g1);
     EXPECT_TRUE(g2.empty());
 }
 
-TEST(move_assign_graph_with_only_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, move_assign_graph_with_only_nodes) {
     auto g1 = xtd::directed_weighted_graph<int, int>({0, -1, -2});
     auto g2 = xtd::directed_weighted_graph<int, int>();
     g2 = std::move(g1);
@@ -200,7 +200,7 @@ TEST(move_assign_graph_with_only_nodes, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_node(-2));
 }
 
-TEST(move_assign_graph_with_nodes_and_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, move_assign_graph_with_nodes_and_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({3, 4, 6});
     g1.insert_edge(3, 4, 1);
     g1.insert_edge(3, 6, 1);
@@ -215,48 +215,48 @@ TEST(move_assign_graph_with_nodes_and_edges, directed_weighted_graph) {
     EXPECT_TRUE(g2.is_connected(3, 6));
 }
 
-TEST(clear_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, clear_graph) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2", "3"});
     ASSERT_FALSE(g.empty());
     g.clear();
     EXPECT_TRUE(g.empty());
 }
 
-TEST(empty_size, directed_weighted_graph) {
+TEST(directed_weighted_graph, empty_size) {
     auto g = xtd::directed_weighted_graph<std::string, int>();
     EXPECT_EQ(0, g.size());
 }
 
-TEST(nonempty_size, directed_weighted_graph) {
+TEST(directed_weighted_graph, nonempty_size) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2"});
     EXPECT_EQ(2, g.size());
     g.insert_edge("1", "2", 1);  // Should have no effect on size.
     EXPECT_EQ(2, g.size());
 }
 
-TEST(is_empty, directed_weighted_graph) {
+TEST(directed_weighted_graph, is_empty) {
     auto g = xtd::directed_weighted_graph<std::string, int>();
     EXPECT_TRUE(g.empty());
 }
 
-TEST(is_not_empty, directed_weighted_graph) {
+TEST(directed_weighted_graph, is_not_empty) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"1", "2"});
     EXPECT_FALSE(g.empty());
 }
 
-TEST(empty_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, empty_nodes) {
     auto g = xtd::directed_weighted_graph<std::string, int>();
     auto v = std::vector<std::string>();
     EXPECT_EQ(g.nodes(), v);
 }
 
-TEST(sorted_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, sorted_nodes) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"back", "apple", "bear", "arch", ""});
     auto v = std::vector<std::string>({"", "apple", "arch", "back", "bear"});
     EXPECT_EQ(g.nodes(), v);
 }
 
-TEST(is_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, is_node) {
     auto g = xtd::directed_weighted_graph<int, bool>({3, 4, 6, 8, -4, -1, 0, 23, 53, -59});
     EXPECT_TRUE(g.is_node(3));
     EXPECT_TRUE(g.is_node(4));
@@ -270,7 +270,7 @@ TEST(is_node, directed_weighted_graph) {
     EXPECT_TRUE(g.is_node(-59));
 }
 
-TEST(is_not_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, is_not_node) {
     auto g = xtd::directed_weighted_graph<int, bool>({3, 4, 6, 8, -4, -1, 0, 23, 53, -59});
     EXPECT_FALSE(g.is_node(1));
     EXPECT_FALSE(g.is_node(2));
@@ -281,7 +281,7 @@ TEST(is_not_node, directed_weighted_graph) {
     EXPECT_FALSE(g.is_node(-53));
 }
 
-TEST(insert_unique_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, insert_unique_nodes) {
     auto g = xtd::directed_weighted_graph<int, bool>();
     ASSERT_TRUE(g.empty());
     EXPECT_TRUE(g.insert_node(1));
@@ -292,7 +292,7 @@ TEST(insert_unique_nodes, directed_weighted_graph) {
     EXPECT_TRUE(g.is_node(123));
 }
 
-TEST(insert_duplicate_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, insert_duplicate_nodes) {
     auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 123});
     ASSERT_TRUE(g.is_node(1));
     ASSERT_TRUE(g.is_node(2));
@@ -302,17 +302,17 @@ TEST(insert_duplicate_nodes, directed_weighted_graph) {
     EXPECT_FALSE(g.insert_node(123));
 }
 
-TEST(begin_empty_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, begin_empty_graph) {
     auto g = xtd::directed_weighted_graph<int, bool>();
     EXPECT_EQ(g.end(), g.begin());
 }
 
-TEST(begin_graph_with_only_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, begin_graph_with_only_nodes) {
     auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 3});
     EXPECT_EQ(g.end(), g.begin());  // Note that dereferencing this iterator is invalid.
 }
 
-TEST(begin_graph_with_nodes_and_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, begin_graph_with_nodes_and_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(1, 2, 1));
     EXPECT_EQ(1, (*g.begin()).from);
@@ -320,7 +320,7 @@ TEST(begin_graph_with_nodes_and_edges, directed_weighted_graph) {
     EXPECT_EQ(1, (*g.begin()).weight);
 }
 
-TEST(end_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, end_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(1, 2, 1));
     auto it = g.end();
@@ -330,7 +330,7 @@ TEST(end_graph, directed_weighted_graph) {
     EXPECT_EQ(1, (*g.begin()).weight);
 }
 
-TEST(is_connected, directed_weighted_graph) {
+TEST(directed_weighted_graph, is_connected) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
     ASSERT_TRUE(g.insert_edge("B", "D", 10));
     EXPECT_TRUE(g.is_connected("B", "D"));
@@ -342,7 +342,7 @@ TEST(is_connected, directed_weighted_graph) {
     EXPECT_TRUE(g.is_connected("A", "A"));
 }
 
-TEST(is_not_connected, directed_weighted_graph) {
+TEST(directed_weighted_graph, is_not_connected) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
     ASSERT_TRUE(g.insert_edge("B", "D", 10));
     EXPECT_FALSE(g.is_connected("D", "B"));
@@ -352,19 +352,19 @@ TEST(is_not_connected, directed_weighted_graph) {
     EXPECT_FALSE(g.is_connected("C", "A"));
 }
 
-TEST(checking_connection_of_nonexisting_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, checking_connection_of_nonexisting_nodes) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
     EXPECT_THROW(static_cast<void>(g.is_connected("A", "AA")), std::runtime_error);
     EXPECT_THROW(static_cast<void>(g.is_connected("BB", "B")), std::runtime_error);
 }
 
-TEST(find_existing_edge, directed_weighted_graph) {
+TEST(directed_weighted_graph, find_existing_edge) {
     auto g = xtd::directed_weighted_graph<int, bool>({1, 2, 123});
     ASSERT_TRUE(g.insert_edge(1, 2, "a"));
     EXPECT_NE(g.end(), g.find(1, 2, "a"));
 }
 
-TEST(insert_unique_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, insert_unique_edges) {
     auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
     EXPECT_TRUE(g.insert_edge(1, 2, "a"));
     EXPECT_NE(g.end(), g.find(1, 2, "a"));
@@ -376,20 +376,20 @@ TEST(insert_unique_edges, directed_weighted_graph) {
     EXPECT_NE(g.end(), g.find(1, 1, "c"));
 }
 
-TEST(insert_duplicate_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, insert_duplicate_edges) {
     auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
     EXPECT_TRUE(g.insert_edge(1, 2, "a"));
     EXPECT_NE(g.end(), g.find(1, 2, "a"));
     EXPECT_FALSE(g.insert_edge(1, 2, "a"));
 }
 
-TEST(insert_edge_with_missing_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, insert_edge_with_missing_nodes) {
     auto g = xtd::directed_weighted_graph<int, std::string>({1, 2, 3, 4, 5});
     EXPECT_THROW(g.insert_edge(1, 0, "a"), std::runtime_error);
     EXPECT_THROW(g.insert_edge(0, 5, "b"), std::runtime_error);
 }
 
-TEST(find_existing_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, find_existing_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 4, 5});
     ASSERT_TRUE(g.insert_edge(1, 5, 1230));
     ASSERT_TRUE(g.insert_edge(1, 1, -100));
@@ -411,7 +411,7 @@ TEST(find_existing_edges, directed_weighted_graph) {
     EXPECT_EQ(130, (*it3).weight);
 }
 
-TEST(find_nonexisting_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, find_nonexisting_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 4, 5});
     ASSERT_TRUE(g.insert_edge(1, 5, 1230));
     ASSERT_TRUE(g.insert_edge(1, 1, -100));
@@ -424,27 +424,53 @@ TEST(find_nonexisting_edges, directed_weighted_graph) {
     EXPECT_EQ(g.end(), it3);
 }
 
-TEST(replace_node_with_nonexisting_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, replace_node_with_nonexisting_node) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2});
     ASSERT_TRUE(g.insert_edge(1, 2, 0));
     EXPECT_TRUE(g.replace_node(2, 3));
+    EXPECT_EQ(g.end(), g.find(1, 2, 0));
     EXPECT_NE(g.end(), g.find(1, 3, 0));
 }
 
-TEST(replace_node_with_existing_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, replace_node_with_existing_node) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(1, 2, 0));
     EXPECT_FALSE(g.replace_node(2, 3));
-    EXPECT_EQ(g.end(), g.find(1, 3, 0));
+    EXPECT_EQ(g.end(), g.find(1, 2, 0));
+    EXPECT_NE(g.end(), g.find(1, 3, 0));
 }
 
-TEST(replace_nonexisting_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, replace_nonexisting_node) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2});
     ASSERT_TRUE(g.insert_edge(1, 2, 0));
     EXPECT_THROW(g.replace_node(0, 3), std::runtime_error);
 }
 
-TEST(removing_existing_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, merge_replacing_existing_node) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B", "C", "D"});
+    ASSERT_TRUE(g.insert_edge("A", "B", 1));
+    ASSERT_TRUE(g.insert_edge("A", "C", 2));
+    ASSERT_TRUE(g.insert_edge("A", "D", 3));
+    ASSERT_TRUE(g.insert_edge("B", "B", 1));
+    ASSERT_TRUE(g.insert_edge("C", "A", 1));
+    g.merge_replace_node("A", "B");
+    EXPECT_NE(g.end(), g.find("B", "B", 1));
+    EXPECT_EQ(g.end(), g.find("A", "B", 1));
+    EXPECT_NE(g.end(), g.find("B", "C", 2));
+    EXPECT_EQ(g.end(), g.find("A", "C", 2));
+    EXPECT_NE(g.end(), g.find("B", "D", 3));
+    EXPECT_EQ(g.end(), g.find("A", "D", 3));
+    EXPECT_NE(g.end(), g.find("C", "B", 1));
+    EXPECT_EQ(g.end(), g.find("C", "A", 1));
+}
+
+TEST(directed_weighted_graph, merge_replacing_nonexisting_node) {
+    auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
+    EXPECT_THROW(g.merge_replace_node("A", "C"), std::runtime_error);
+    EXPECT_THROW(g.merge_replace_node("C", "A"), std::runtime_error);
+}
+
+TEST(directed_weighted_graph, removing_existing_node) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2});
     EXPECT_TRUE(g.erase_node(1));
     EXPECT_EQ(1, g.size());
@@ -452,13 +478,13 @@ TEST(removing_existing_node, directed_weighted_graph) {
     EXPECT_EQ(0, g.size());
 }
 
-TEST(removing_nonexisting_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, removing_nonexisting_node) {
     auto g = xtd::directed_weighted_graph<int, int>();
     EXPECT_FALSE(g.erase_node(1));
     EXPECT_FALSE(g.erase_node(0));
 }
 
-TEST(removing_existing_node_with_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, removing_existing_node_with_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2});
     ASSERT_TRUE(g.insert_edge(1, 2, 0));
     ASSERT_TRUE(g.insert_edge(2, 1, 0));
@@ -467,7 +493,7 @@ TEST(removing_existing_node_with_edges, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.find(2, 1, 0));
 }
 
-TEST(erase_existing_edge, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_existing_edge) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
     ASSERT_TRUE(g.insert_edge("A", "B", 1));
     ASSERT_TRUE(g.insert_edge("B", "A", 1));
@@ -486,7 +512,7 @@ TEST(erase_existing_edge, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.find("A", "B", 2));
 }
 
-TEST(erase_nonexisting_edge, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_nonexisting_edge) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
     EXPECT_FALSE(g.erase_edge("B", "A", 1));
     EXPECT_FALSE(g.erase_edge("A", "B", 2));
@@ -494,13 +520,13 @@ TEST(erase_nonexisting_edge, directed_weighted_graph) {
     EXPECT_FALSE(g.erase_edge("A", "A", 1));
 }
 
-TEST(erase_nonexisting_edge_with_nonexisting_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_nonexisting_edge_with_nonexisting_node) {
     auto g = xtd::directed_weighted_graph<std::string, int>({"A", "B"});
     EXPECT_THROW(g.erase_edge("C", "B", 1), std::runtime_error);
     EXPECT_THROW(g.erase_edge("A", "C", 1), std::runtime_error);
 }
 
-TEST(erase_existing_edge_with_single_iterator, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_existing_edge_with_single_iterator) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(1, 1, 10));
     ASSERT_TRUE(g.insert_edge(1, 2, 10));
@@ -516,7 +542,7 @@ TEST(erase_existing_edge_with_single_iterator, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.find(1, 3, 10));
 }
 
-TEST(erase_nonexisting_edge_with_single_iterator, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_nonexisting_edge_with_single_iterator) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto it1 = g.find(1, 1, 10);
     EXPECT_EQ(g.end(), g.erase_edge(it1));
@@ -526,7 +552,7 @@ TEST(erase_nonexisting_edge_with_single_iterator, directed_weighted_graph) {
     EXPECT_EQ(g.end(), g.erase_edge(it3));
 }
 
-TEST(iterator_is_lexicographically_ordered, directed_weighted_graph) {
+TEST(directed_weighted_graph, iterator_is_lexicographically_ordered) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
@@ -548,7 +574,7 @@ TEST(iterator_is_lexicographically_ordered, directed_weighted_graph) {
     EXPECT_EQ(iter, g.end());
 }
 
-TEST(erase_existing_edge_with_range_iterator, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_existing_edge_with_range_iterator) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
@@ -571,7 +597,7 @@ TEST(erase_existing_edge_with_range_iterator, directed_weighted_graph) {
     EXPECT_NE(g.end(), g.find(3, 3, 4));
 }
 
-TEST(erase_edge_with_range_iterator_with_nonexistent_begin, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_edge_with_range_iterator_with_nonexistent_begin) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
@@ -586,7 +612,7 @@ TEST(erase_edge_with_range_iterator_with_nonexistent_begin, directed_weighted_gr
     EXPECT_EQ(g.end(), g.erase_edge(first, last));
 }
 
-TEST(erase_edge_with_range_iterator_with_nonexistent_end, directed_weighted_graph) {
+TEST(directed_weighted_graph, erase_edge_with_range_iterator_with_nonexistent_end) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
@@ -609,13 +635,13 @@ TEST(erase_edge_with_range_iterator_with_nonexistent_end, directed_weighted_grap
     EXPECT_EQ(g.end(), g.find(3, 3, 4));
 }
 
-TEST(weights_of_graph_with_no_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, weights_of_graph_with_no_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto v = g.weights(1, 2);
     EXPECT_EQ(0, v.size());
 }
 
-TEST(weights_of_graph_with_nonexisting_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, weights_of_graph_with_nonexisting_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
@@ -625,7 +651,7 @@ TEST(weights_of_graph_with_nonexisting_edges, directed_weighted_graph) {
     EXPECT_EQ(0, v.size());
 }
 
-TEST(weights_of_graph_with_existing_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, weights_of_graph_with_existing_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 2, 4));
@@ -638,19 +664,19 @@ TEST(weights_of_graph_with_existing_edges, directed_weighted_graph) {
     EXPECT_EQ(3, v.size());
 }
 
-TEST(weights_of_graph_with_nonexisting_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, weights_of_graph_with_nonexisting_nodes) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     EXPECT_THROW(g.weights(3, 4), std::runtime_error);
     EXPECT_THROW(g.weights(0, 1), std::runtime_error);
 }
 
-TEST(connections_of_graph_with_no_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, connections_of_graph_with_no_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto v = g.connections(1);
     EXPECT_EQ(0, v.size());
 }
 
-TEST(connections_of_graph_with_existing_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, connections_of_graph_with_existing_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 10, 4));
@@ -663,7 +689,7 @@ TEST(connections_of_graph_with_existing_edges, directed_weighted_graph) {
     EXPECT_EQ(3, v.size());
 }
 
-TEST(connections_of_graph_with_nonexisting_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, connections_of_graph_with_nonexisting_edges) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
     ASSERT_TRUE(g.insert_edge(3, 2, 10));
     ASSERT_TRUE(g.insert_edge(3, 10, 4));
@@ -673,24 +699,24 @@ TEST(connections_of_graph_with_nonexisting_edges, directed_weighted_graph) {
     EXPECT_EQ(0, v.size());
 }
 
-TEST(connections_of_graph_with_nonexisting_node, directed_weighted_graph) {
+TEST(directed_weighted_graph, connections_of_graph_with_nonexisting_node) {
     auto g = xtd::directed_weighted_graph<int, int>({1, 2, 3, 10});
     EXPECT_THROW(g.connections(0), std::runtime_error);
 }
 
-TEST(comparing_empty_graphs, directed_weighted_graph) {
+TEST(directed_weighted_graph, comparing_empty_graphs) {
     auto g1 = xtd::directed_weighted_graph<int, int>();
     auto g2 = xtd::directed_weighted_graph<int, int>();
     EXPECT_TRUE(g1 == g2);
 }
 
-TEST(comparing_equal_graphs_with_only_nodes, directed_weighted_graph) {
+TEST(directed_weighted_graph, comparing_equal_graphs_with_only_nodes) {
     auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
     EXPECT_TRUE(g1 == g2);
 }
 
-TEST(comparing_equal_graphs_with_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, comparing_equal_graphs_with_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
     g1.insert_edge(1, 2, 1);
@@ -700,7 +726,7 @@ TEST(comparing_equal_graphs_with_edges, directed_weighted_graph) {
     EXPECT_TRUE(g1 == g2);
 }
 
-TEST(comparing_unequal_graphs_with_both_graph_with_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, comparing_unequal_graphs_with_both_graph_with_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
     g1.insert_edge(1, 2, 1);
@@ -708,7 +734,7 @@ TEST(comparing_unequal_graphs_with_both_graph_with_edges, directed_weighted_grap
     EXPECT_FALSE(g1 == g2);
 }
 
-TEST(comparing_unequal_graphs_with_one_graph_with_edges, directed_weighted_graph) {
+TEST(directed_weighted_graph, comparing_unequal_graphs_with_one_graph_with_edges) {
     auto g1 = xtd::directed_weighted_graph<int, int>({1, 2, 3});
     auto g2 = xtd::directed_weighted_graph<int, int>({3, 2, 1});
     g2.insert_edge(1, 2, 1);
@@ -716,7 +742,7 @@ TEST(comparing_unequal_graphs_with_one_graph_with_edges, directed_weighted_graph
     EXPECT_FALSE(g1 == g2);
 }
 
-TEST(outputting_graph, directed_weighted_graph) {
+TEST(directed_weighted_graph, outputting_graph) {
     auto g = xtd::directed_weighted_graph<int, int>({3, 2, 1});
     g.insert_edge(1, 2, 4);
     g.insert_edge(1, 2, 3);
