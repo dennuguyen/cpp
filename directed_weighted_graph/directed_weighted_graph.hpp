@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -19,16 +20,15 @@ class directed_weighted_graph {
     template <typename OuterIteratorType, typename InnerIteratorType>
     class iterator;
     struct node_comparator;
-    struct node_edge_comparator;
+    struct edge_comparator;
     using node_type = std::shared_ptr<N>;
     using edge_type = std::pair<std::weak_ptr<N>, E>;
-    using map_value_type = std::set<edge_type, node_edge_comparator>;
-    using map_key_type = std::map<node_type, map_value_type, node_comparator>;
-    using size_type = typename map_key_type::size_type;
-    using iterator_type =
-        iterator<typename map_key_type::iterator, typename map_value_type::iterator>;
+    using edges_type = std::set<edge_type, edge_comparator>;
+    using graph_type = std::map<node_type, edges_type, node_comparator>;
+    using size_type = typename graph_type::size_type;
+    using iterator_type = iterator<typename graph_type::iterator, typename edges_type::iterator>;
     using const_iterator_type =
-        iterator<typename map_key_type::const_iterator, typename map_value_type::const_iterator>;
+        iterator<typename graph_type::const_iterator, typename edges_type::const_iterator>;
 
     struct value_type {
         N from;
@@ -54,7 +54,7 @@ class directed_weighted_graph {
         }
     };
 
-    // Custom comparator for map_key_type.
+    // Custom comparator for graph_type.
     struct node_comparator {
         using is_transparent = void;
         constexpr auto operator()(node_type const& lhs, node_type const& rhs) const noexcept
@@ -63,8 +63,8 @@ class directed_weighted_graph {
         }
     };
 
-    // Custom comparator for map_value_type.
-    struct node_edge_comparator {
+    // Custom comparator for edges_type.
+    struct edge_comparator {
         using is_transparent = void;
         constexpr auto operator()(edge_type const& lhs, edge_type const& rhs) const noexcept
             -> bool {
@@ -96,14 +96,20 @@ class directed_weighted_graph {
         // shall compare equal.
         iterator() = default;
 
-        // Returns the current from, to, and weight.
         auto operator*() noexcept -> value_type {
             return {*outer_->first, *inner_->first.lock(), inner_->second};
         }
 
-        // Returns the current from, to, and weight.
         auto operator*() const noexcept -> value_type {
             return {*outer_->first, *inner_->first.lock(), inner_->second};
+        }
+
+        auto operator->() noexcept -> std::shared_ptr<value_type> {
+            return std::make_shared<value_type>(operator*());
+        }
+
+        auto operator->() const noexcept -> std::shared_ptr<value_type> {
+            return std::make_shared<value_type>(operator*());
         }
 
         // Advances *this to the next element in the iterable list.
@@ -267,10 +273,8 @@ class directed_weighted_graph {
                 "doesn't exist");
         }
         if (is_node(new_data) == false) {
-            // By extracting the node handle, only the key gets repointed.
-            auto node_handle = internal_.extract(std::make_shared<N>(old_data));
-            node_handle.key() = std::make_shared<N>(new_data);
-            internal_.insert(std::move(node_handle));
+            insert_node(new_data);
+            merge_replace_node(old_data, new_data);
             return true;
         }
         return false;
@@ -289,10 +293,38 @@ class directed_weighted_graph {
                 "Cannot call xtd::directed_weighted_graph<N, E>::merge_replace_node on old or new "
                 "data if they don't exist in the directed_weighted_graph");
         }
-        // By extracting the node handle, only the key gets repointed.
-        auto node_handle = internal_.extract(std::make_shared<N>(old_data));
-        node_handle.key() = std::make_shared<N>(new_data);
-        internal_.insert(std::move(node_handle));
+        auto const& old_iter = find_node(old_data);
+        auto new_iter = find_node(new_data);
+
+        // Merge incoming edges of old and new into the new node.
+        for (auto& [k, v] : internal_) {
+            // for (auto& [n, w] : v) {
+            //     if (*n.lock() == old_data) {
+            //         n = new_iter->first;
+            //     }
+            // }
+
+            // typename decltype(v)::iterator it = std::find_if(
+            //     v.begin(), v.end(),
+            //     [&old_data](auto const& pair) { return *pair.first.lock() == old_data; });
+            // if (it != v.end()) {
+            //     it->first = std::weak_ptr<N>(new_iter->first);
+            // }
+        }
+
+        // Merge outgoing edges of old and new into the new node.
+        auto const& old_edges = old_iter->second;
+        auto& new_edges = new_iter->second;
+        new_edges.insert(old_edges.begin(), old_edges.end());
+        std::cout << *this << std::endl;
+
+        // Remove old node.
+        internal_.erase(old_iter->first);
+
+        // By extracting the node handle, key can be modified.
+        // auto node_handle = internal_.extract(std::make_shared<N>(old_data));
+        // *node_handle.key() = new_data;
+        // internal_.insert(std::move(node_handle));
     }
 
     // Erases all nodes equivalent to value, including all incoming and outgoing edges.
@@ -533,33 +565,33 @@ class directed_weighted_graph {
     }
 
     [[nodiscard]] auto find_node(std::shared_ptr<N> const& node) const noexcept
-        -> map_key_type::const_iterator {
+        -> graph_type::const_iterator {
         return internal_.find(node);
     }
 
-    auto find_node(std::shared_ptr<N> const& node) noexcept -> map_key_type::iterator {
+    auto find_node(std::shared_ptr<N> const& node) noexcept -> graph_type::iterator {
         return internal_.find(node);
     }
 
-    [[nodiscard]] auto find_node(N const& node) const noexcept -> map_key_type::const_iterator {
+    [[nodiscard]] auto find_node(N const& node) const noexcept -> graph_type::const_iterator {
         return find_node(std::make_shared<N>(node));
     }
 
-    auto find_node(N const& node) noexcept -> map_key_type::iterator {
+    auto find_node(N const& node) noexcept -> graph_type::iterator {
         return find_node(std::make_shared<N>(node));
     }
 
     [[nodiscard]] auto find_node(std::weak_ptr<N> const& node) const noexcept
-        -> map_key_type::const_iterator {
+        -> graph_type::const_iterator {
         return find_node(node.lock());
     }
 
-    auto find_node(std::weak_ptr<N> const& node) noexcept -> map_key_type::iterator {
+    auto find_node(std::weak_ptr<N> const& node) noexcept -> graph_type::iterator {
         return find_node(node.lock());
     }
 
     // Internal data structure uses a map to represent the directed_weighted_graph.
-    map_key_type internal_;
+    graph_type internal_;
 };
 
 }  // namespace xtd
