@@ -398,7 +398,7 @@ class directed_weighted_graph {
     //
     // All iterators are invalidated.
     auto erase_edge(iterator_type i, iterator_type s) noexcept -> iterator_type {
-        while (i != s && i != end()) {
+        while (i != s) {
             i = erase_edge(i);
         }
         return i;
