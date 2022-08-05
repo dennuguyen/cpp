@@ -316,7 +316,7 @@ class directed_weighted_graph {
         auto const& old_edges = old_iter->second;
         auto& new_edges = new_iter->second;
         new_edges.insert(old_edges.begin(), old_edges.end());
-        std::cout << *this << std::endl;
+        // std::cout << *this << std::endl;
 
         // Remove old node.
         internal_.erase(old_iter->first);
@@ -398,7 +398,7 @@ class directed_weighted_graph {
     //
     // All iterators are invalidated.
     auto erase_edge(iterator_type i, iterator_type s) noexcept -> iterator_type {
-        while (i != s) {
+        while (i != s && i != end()) {
             i = erase_edge(i);
         }
         return i;

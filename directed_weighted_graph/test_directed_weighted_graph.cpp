@@ -499,14 +499,17 @@ TEST(directed_weighted_graph, erase_existing_edge) {
     ASSERT_TRUE(g.insert_edge("B", "A", 1));
     ASSERT_TRUE(g.insert_edge("A", "B", 2));
     EXPECT_TRUE(g.erase_edge("A", "B", 1));
+    EXPECT_FALSE(g.erase_edge("A", "B", 1));
     EXPECT_EQ(g.end(), g.find("A", "B", 1));
     EXPECT_NE(g.end(), g.find("B", "A", 1));
     EXPECT_NE(g.end(), g.find("A", "B", 2));
     EXPECT_TRUE(g.erase_edge("B", "A", 1));
+    EXPECT_FALSE(g.erase_edge("B", "A", 1));
     EXPECT_EQ(g.end(), g.find("A", "B", 1));
     EXPECT_EQ(g.end(), g.find("B", "A", 1));
     EXPECT_NE(g.end(), g.find("A", "B", 2));
     EXPECT_TRUE(g.erase_edge("A", "B", 2));
+    EXPECT_FALSE(g.erase_edge("A", "B", 2));
     EXPECT_EQ(g.end(), g.find("A", "B", 1));
     EXPECT_EQ(g.end(), g.find("B", "A", 1));
     EXPECT_EQ(g.end(), g.find("A", "B", 2));
@@ -758,4 +761,13 @@ TEST(directed_weighted_graph, outputting_graph) {
         "3 (\n"
         ")\n";
     EXPECT_EQ(output, actual.str());
+}
+
+TEST(directed_weighted_graph, stab_operator) {
+    auto g = xtd::directed_weighted_graph<int, int>({3, 2, 1});
+    ASSERT_TRUE(g.insert_edge(1, 2, 4));
+    auto it = g.find(1, 2, 4);
+    EXPECT_EQ(1, it->from);
+    EXPECT_EQ(2, it->to);
+    EXPECT_EQ(4, it->weight);
 }
