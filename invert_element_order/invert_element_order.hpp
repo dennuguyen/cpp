@@ -9,23 +9,24 @@ namespace xtd {
 
 template <typename Iter, typename T = typename std::iterator_traits<Iter>::value_type>
 auto invert_element_order(Iter first, Iter last) -> void {
-    auto const size = std::distance(first, last);
+    auto sorted = std::vector<T>(std::distance(first, last));
+    std::partial_sort_copy(first, last, sorted.rbegin(), sorted.rend());
 
-    auto elems_ascending_order = std::vector<T>(size);
-    std::copy(first, last, elems_ascending_order.begin());
-    std::sort(elems_ascending_order.begin(), elems_ascending_order.end());
+    auto inverted = std::map<T, T>();
 
-    auto elems_descending_order = std::vector<T>(size);
-    std::copy(first, last, elems_descending_order.begin());
-    std::sort(elems_descending_order.rbegin(), elems_descending_order.rend());
+    auto first1 = first;
+    while (first1 != last) {
+        inverted[*first1++];
+    }
 
-    auto inverted_map = std::map<T, T>();
-    for (std::size_t i = 0; i < size; i++) {
-        inverted_map[elems_ascending_order[i]] = elems_descending_order[i];
+    auto first2 = inverted.begin();
+    auto first3 = sorted.begin();
+    while (first2 != inverted.end()) {
+        (first2++)->second = *first3++;
     }
 
     while (first != last) {
-        *first++ = inverted_map[*first];
+        *first++ = inverted[*first];
     }
 }
 
