@@ -1,0 +1,1 @@
+build_gtest_suite(test_invert_element_order)
