@@ -11,6 +11,7 @@ template <typename Iter, typename T = typename std::iterator_traits<Iter>::value
 auto invert_element_order(Iter first, Iter last) -> void {
     auto sorted = std::vector<T>(std::distance(first, last));
     std::partial_sort_copy(first, last, sorted.rbegin(), sorted.rend());
+    std::unique(sorted.begin(), sorted.end());
 
     auto inverted = std::map<T, T>();
 
