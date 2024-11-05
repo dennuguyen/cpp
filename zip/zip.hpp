@@ -9,9 +9,12 @@ class Zip {
 public:
     template <typename FirstIteratorType, typename SecondIteratorType>
     class iterator;
-    using value_type = std::pair<typename It1::value_type, typename It2::value_type>;
+    using value_type =
+        std::pair<typename std::conditional_t<std::is_pointer_v<It1>, typename std::remove_pointer_t<It1>,
+                                              typename std::iterator_traits<It1>::value_type>,
+                  typename std::conditional_t<std::is_pointer_v<It2>, typename std::remove_pointer_t<It2>,
+                                              typename std::iterator_traits<It2>::value_type> >;
     using iterator_type = iterator<It1, It2>;
-    using const_iterator_type = iterator<typename std::add_const<It1>::type, typename std::add_const<It2>::type>;
 
     template <typename FirstIteratorType, typename SecondIteratorType>
     class iterator {
@@ -72,11 +75,11 @@ public:
     auto begin() -> iterator_type { return {first1, first2}; }
     auto end() -> iterator_type { return {last1, last2}; }
 
-    auto begin() const -> const_iterator_type { return {first1, first2}; }
-    auto end() const -> const_iterator_type { return {last1, last2}; }
+    auto begin() const -> iterator_type { return {first1, first2}; }
+    auto end() const -> iterator_type { return {last1, last2}; }
 
-    auto cbegin() const -> const_iterator_type { return {first1, first2}; }
-    auto cend() const -> const_iterator_type { return {last1, last2}; }
+    auto cbegin() const -> iterator_type { return {first1, first2}; }
+    auto cend() const -> iterator_type { return {last1, last2}; }
 
 private:
     // First container.
