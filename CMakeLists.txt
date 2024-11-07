@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.2.2)
-project(competitive_programming_handbook VERSION 0.0.0)
+cmake_minimum_required(VERSION 3.30.5)
+project(cpp VERSION 0.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -22,7 +22,7 @@ macro(build_gtest_suite TEST)
 endmacro()
 
 add_subdirectory(adjacent_all_of)
-add_subdirectory(bidirectional_map)
+# add_subdirectory(bidirectional_map)
 add_subdirectory(binary_search_index)
 add_subdirectory(breadth_first_search)
 add_subdirectory(contains)
