@@ -56,18 +56,18 @@ public:
             return result;
         }
 
-        auto operator<=>(iterator const& other) const -> int {
-            if (curr < other.curr || curr < other.curr) return -1;
-            if (curr > other.curr || curr > other.curr) return 1;
-            return 0;
+        auto operator<=>(iterator const& other) const -> std::strong_ordering {
+            size_t diff1 = distance();
+            size_t diff2 = other.distance();
+            if (diff1 < diff2) return std::strong_ordering::less;
+            if (diff1 > diff2) return std::strong_ordering::greater;
+            return std::strong_ordering::equal;
         }
 
-        auto operator==(iterator const& other) const -> bool = default;
-        auto operator!=(iterator const& other) const -> bool = default;
-        auto operator<(iterator const& other) const -> bool = default;
-        auto operator>(iterator const& other) const -> bool = default;
-        auto operator<=(iterator const& other) const -> bool = default;
-        auto operator>=(iterator const& other) const -> bool = default;
+        friend auto operator<<(std::ostream& os, iterator const& it) -> std::ostream& {
+            os << it.curr;
+            return os;
+        }
 
     private:
         iterator(IteratorType start, IteratorType head, IteratorType tail, size_t size)
@@ -77,7 +77,7 @@ public:
 
         void advance(int offset) {
             auto temp = curr + offset;
-            T* end = start + capacity_;
+            T* end = start + realCapacity;
 
             if (offset > 0) {
                 // Increment wrap-around case.
@@ -85,6 +85,14 @@ public:
             } else {
                 // Decrement wrap-around case.
                 curr = (temp < start) ? end - (start - temp) : temp;
+            }
+        }
+
+        size_t distance() const {
+            if (curr >= tail) {
+                return curr - tail;
+            } else {
+                return realCapacity - (tail - start) + (curr - start);
             }
         }
 
@@ -145,17 +153,18 @@ public:
 
 private:
     auto wrap(T* ptr) -> T* {
-        T* end = data + capacity_;
+        T* end = data + realCapacity;
         return ptr >= end ? data + (ptr - end) : ptr;
     }
 
     auto wrap(T* ptr) const -> const T* {
-        const T* end = data + capacity_;
+        const T* end = data + realCapacity;
         return ptr >= end ? data + (ptr - end) : ptr;
     }
 
-    size_t size_;       // Required to handle size 0 and 1 cases.
-    T data[capacity_];  // Data is stored in reverse [tail, head].
-    T* head;            // One-after-the-element that was pushed.
-    T* tail;            // Element to be popped first.
+    static constexpr size_t realCapacity = capacity_ + 1;  // +1 to store one-after-the-last-element.
+    size_t size_;                                          // Required to handle size 0 and 1 cases.
+    T data[realCapacity];                                  // Data is stored in reverse [tail, head].
+    T* head;                                               // Newest element.
+    T* tail;                                               // Oldest element.
 };

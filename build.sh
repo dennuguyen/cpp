@@ -1,0 +1,1 @@
+g++ -std=c++20 circular_queue/test_circular_queue.cpp -Icircular_queue -I.

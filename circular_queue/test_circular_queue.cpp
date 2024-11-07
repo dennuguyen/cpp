@@ -1,5 +1,4 @@
 #include <initializer_list>
-#include <iostream>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
@@ -181,5 +180,37 @@ TEST_CASE("iterator -") {
         CHECK(*(it - 1) == 4);
         CHECK(*(it - 2) == 3);
         CHECK(*(it - 3) == 2);
+    }
+}
+
+TEST_CASE("iterator comparison") {
+    SUBCASE("tail < curr < head") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        auto it = cq.begin() + 1;
+        CHECK(cq.begin() < cq.end());
+        CHECK(cq.begin() < it);
+        CHECK(it < cq.end());
+    }
+
+    SUBCASE("head < tail < curr") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        cq.pop();
+        cq.push(4);
+        auto it = cq.begin() + 1;
+        CHECK(cq.begin() < cq.end());
+        CHECK(cq.begin() < it);
+        CHECK(it < cq.end());
+    }
+
+    SUBCASE("curr < head < tail") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        cq.pop();
+        cq.push(4);
+        cq.pop();
+        cq.push(5);
+        auto it = cq.begin() + 1;
+        CHECK(cq.begin() < cq.end());
+        CHECK(cq.begin() < it);
+        CHECK(it < cq.end());
     }
 }
