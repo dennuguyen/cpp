@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 
-template <typename T, std::size_t capacity_>
+template <typename T, size_t capacity_>
 class CircularQueue {
 public:
     template <typename IteratorType>
@@ -11,67 +11,89 @@ public:
     using iterator_type = iterator<T*>;
     using const_iterator_type = iterator<T const*>;
 
-    // template <typename IteratorType>
-    // class iterator {
-    // public:
-    //     friend class CircularQueue;
-    //     using value_type = T;
-    //     using pointer_type = T*;
+    template <typename IteratorType>
+    class iterator {
+    public:
+        friend class CircularQueue;
 
-    //     iterator(IteratorType head, IteratorType tail) : iterator(head, tail, tail) {}
-    //     iterator(IteratorType head, IteratorType tail, IteratorType curr)
-    //         : head(head), tail(tail), curr(curr), startedRHS(curr > tail) {}
+        auto operator*() -> T& { return *curr; }
+        auto operator*() const -> T& { return *curr; }
 
-    //     auto operator*() -> T& { return *curr; }
-    //     auto operator*() const -> T& { return *curr; }
+        auto operator->() -> T* { return curr; }
+        auto operator->() const -> T const* { return curr; }
 
-    //     auto operator->() -> T* { return curr; }
-    //     auto operator->() const -> T const* { return curr; }
+        auto operator++() -> iterator& {
+            advance(1);
+            return *this;
+        }
 
-    //     auto operator++() -> iterator& {
-    //         curr++;
-    //         return *this;
-    //     }
+        auto operator++(int) -> iterator {
+            auto temp = *this;
+            ++*this;
+            return temp;
+        }
 
-    //     auto operator++(int) -> iterator {
-    //         auto temp = *this;
-    //         ++*this;
-    //         return temp;
-    //     }
+        auto operator--() -> iterator& {
+            advance(-1);
+            return *this;
+        }
 
-    //     auto operator--() -> iterator& {
-    //         curr--;
-    //         return *this;
-    //     }
+        auto operator--(int) -> iterator {
+            auto temp = *this;
+            --*this;
+            return temp;
+        }
 
-    //     auto operator--(int) -> iterator {
-    //         auto temp = *this;
-    //         --*this;
-    //         return temp;
-    //     }
+        auto operator+(int offset) const -> iterator {
+            iterator result = *this;
+            result.advance(offset);
+            return result;
+        }
 
-    //     auto operator+(int offset) const -> iterator { return {head, tail, curr + offset}; }
-    //     auto operator-(int offset) const -> iterator { return {head, tail, curr - offset}; }
+        auto operator-(int offset) const -> iterator {
+            iterator result = *this;
+            result.advance(-offset);
+            return result;
+        }
 
-    //     auto operator<=>(iterator const& other) const -> int {
-    //         if (curr < other.curr || curr < other.curr) return -1;
-    //         if (curr > other.curr || curr > other.curr) return 1;
-    //         return 0;
-    //     }
+        auto operator<=>(iterator const& other) const -> int {
+            if (curr < other.curr || curr < other.curr) return -1;
+            if (curr > other.curr || curr > other.curr) return 1;
+            return 0;
+        }
 
-    //     auto operator==(iterator const& other) const -> bool = default;
-    //     auto operator!=(iterator const& other) const -> bool = default;
-    //     auto operator<(iterator const& other) const -> bool = default;
-    //     auto operator>(iterator const& other) const -> bool = default;
-    //     auto operator<=(iterator const& other) const -> bool = default;
-    //     auto operator>=(iterator const& other) const -> bool = default;
+        auto operator==(iterator const& other) const -> bool = default;
+        auto operator!=(iterator const& other) const -> bool = default;
+        auto operator<(iterator const& other) const -> bool = default;
+        auto operator>(iterator const& other) const -> bool = default;
+        auto operator<=(iterator const& other) const -> bool = default;
+        auto operator>=(iterator const& other) const -> bool = default;
 
-    // private:
-    //     IteratorType head;
-    //     IteratorType tail;
-    //     IteratorType curr;
-    //     bool startedRHS;
-    // };
+    private:
+        iterator(IteratorType start, IteratorType head, IteratorType tail, size_t size)
+            : iterator(start, head, tail, tail, size) {}
+        iterator(IteratorType start, IteratorType head, IteratorType tail, IteratorType curr, size_t size)
+            : start(start), head(head), tail(tail), curr(curr), size_(size) {}
+
+        void advance(int offset) {
+            auto temp = curr + offset;
+            T* end = start + capacity_;
+
+            if (offset > 0) {
+                // Increment wrap-around case.
+                curr = (temp >= end) ? start + (temp - end) : temp;
+            } else {
+                // Decrement wrap-around case.
+                curr = (temp < start) ? end - (start - temp) : temp;
+            }
+        }
+
+        IteratorType start;
+        IteratorType head;
+        IteratorType tail;
+        IteratorType curr;
+        size_t size_;
+    };
 
     CircularQueue() : CircularQueue({}) {}
 
@@ -82,14 +104,14 @@ public:
     auto operator[](size_t index) -> T& { return *(wrap(tail + index)); }
     auto operator[](size_t index) const -> const T& { return *(wrap(tail + index)); }
 
-    // auto begin() -> iterator_type { return {head, tail, tail}; }
-    // auto end() -> iterator_type { return {head, tail, head}; }
+    auto begin() -> iterator_type { return {data, head, tail, size_}; }
+    auto end() -> iterator_type { return {data, head, tail, head, size_}; }
 
-    // auto begin() const -> const const_iterator_type { return {head, tail, tail}; }
-    // auto end() const -> const const_iterator_type { return {head, tail, head}; }
+    auto begin() const -> const const_iterator_type { return {data, head, tail, size_}; }
+    auto end() const -> const const_iterator_type { return {data, head, tail, head, size_}; }
 
-    // auto cbegin() const -> const const_iterator_type { return {head, tail, tail}; }
-    // auto cend() const -> const const_iterator_type { return {head, tail, head}; }
+    auto cbegin() const -> const const_iterator_type { return {data, head, tail, size_}; }
+    auto cend() const -> const const_iterator_type { return {data, head, tail, head, size_}; }
 
     auto full() const -> bool { return size_ == capacity_; }
     auto empty() const -> bool { return size_ == 0; }

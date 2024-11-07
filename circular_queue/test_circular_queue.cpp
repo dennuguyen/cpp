@@ -144,33 +144,42 @@ TEST_CASE("front()") {
     }
 }
 
-// TEST_CASE("iterator +") {
-//     SUBCASE("iterating forward from start of queue") {
-//         CircularQueue<int, 3> cq = {1, 2, 3};
-//         auto it = cq.begin();
-//         CHECK(*(it + 0) == 1);
-//         CHECK(*(it + 1) == 2);
-//         CHECK(*(it + 2) == 3);
-//     }
+TEST_CASE("iterator +") {
+    SUBCASE("iterating forward from start of queue") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        auto it = cq.begin();
+        CHECK(*(it + 0) == 1);
+        CHECK(*(it + 1) == 2);
+        CHECK(*(it + 2) == 3);
+    }
 
-//     SUBCASE("iterating forward where head is in middle of queue") {
-//         CircularQueue<int, 3> cq = {1, 2, 3};
-//         cq.pop();
-//         cq.push(4);
-//         auto it = cq.begin();
-//         CHECK(*(it + 0) == 2);
-//         CHECK(*(it + 1) == 3);
-//         CHECK(*(it + 2) == 4);
-//         std::cout << cq << std::endl;
-//     }
+    SUBCASE("iterating forward of expected wrap-around case") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        cq.pop();
+        cq.push(4);
+        auto it = cq.begin();
+        CHECK(*(it + 0) == 2);
+        CHECK(*(it + 1) == 3);
+        CHECK(*(it + 2) == 4);
+    }
+}
 
-//     SUBCASE("iterating forward where head is at start of queue") {
-//         // CircularQueue<int, 3> cq = {1, 2, 3};
-//         // auto it = cq.begin();
-//         // CHECK(*it == 1);
-//         // CHECK(*(it + 1) == 2);
-//         // CHECK(*(it + 2) == 3);
-//     }
+TEST_CASE("iterator -") {
+    SUBCASE("iterating backward from end of queue") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        auto it = cq.end();
+        CHECK(*(it - 1) == 3);
+        CHECK(*(it - 2) == 2);
+        CHECK(*(it - 3) == 1);
+    }
 
-//     SUBCASE("iterating backward") {}
-// }
+    SUBCASE("iterating backward of expected wrap-around case") {
+        CircularQueue<int, 3> cq = {1, 2, 3};
+        cq.pop();
+        cq.push(4);
+        auto it = cq.end();
+        CHECK(*(it - 1) == 4);
+        CHECK(*(it - 2) == 3);
+        CHECK(*(it - 3) == 2);
+    }
+}
