@@ -143,3 +143,34 @@ TEST_CASE("front()") {
         CHECK(cq.empty() == true);
     }
 }
+
+// TEST_CASE("iterator +") {
+//     SUBCASE("iterating forward from start of queue") {
+//         CircularQueue<int, 3> cq = {1, 2, 3};
+//         auto it = cq.begin();
+//         CHECK(*(it + 0) == 1);
+//         CHECK(*(it + 1) == 2);
+//         CHECK(*(it + 2) == 3);
+//     }
+
+//     SUBCASE("iterating forward where head is in middle of queue") {
+//         CircularQueue<int, 3> cq = {1, 2, 3};
+//         cq.pop();
+//         cq.push(4);
+//         auto it = cq.begin();
+//         CHECK(*(it + 0) == 2);
+//         CHECK(*(it + 1) == 3);
+//         CHECK(*(it + 2) == 4);
+//         std::cout << cq << std::endl;
+//     }
+
+//     SUBCASE("iterating forward where head is at start of queue") {
+//         // CircularQueue<int, 3> cq = {1, 2, 3};
+//         // auto it = cq.begin();
+//         // CHECK(*it == 1);
+//         // CHECK(*(it + 1) == 2);
+//         // CHECK(*(it + 2) == 3);
+//     }
+
+//     SUBCASE("iterating backward") {}
+// }
