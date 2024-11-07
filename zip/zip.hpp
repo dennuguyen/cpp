@@ -22,7 +22,7 @@ public:
         friend class Zip;
         using value_type = Zip::value_type;
 
-        iterator(FirstIteratorType iter1, SecondIteratorType iter2) : iter1(iter1), iter2(iter2) {}
+        iterator() = default;
 
         auto operator*() const -> value_type { return {*iter1, *iter2}; }
         auto operator->() const -> std::shared_ptr<value_type> { return std::make_shared<value_type>(operator*()); }
@@ -64,6 +64,8 @@ public:
         auto operator!=(iterator const& other) const -> bool = default;
 
     private:
+        iterator(FirstIteratorType iter1, SecondIteratorType iter2) : iter1(iter1), iter2(iter2) {}
+
         FirstIteratorType iter1;
         SecondIteratorType iter2;
     };
