@@ -1,7 +1,6 @@
-#pragma once
+#include <ostream>
 
-#include <algorithm>
-#include <cstddef>
+#pragma once
 
 template <typename T, size_t capacity_>
 class CircularQueue {
